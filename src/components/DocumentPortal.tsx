@@ -62,6 +62,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         date_payment: doc.date_payment,
         date_deadline: doc.date_deadline,
         date_expiry: doc.date_expiry,
+        pdf_url: doc.pdf_url,
       });
       setDocuments([newDoc, ...documents]);
       toast({

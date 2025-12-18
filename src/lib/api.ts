@@ -1,4 +1,5 @@
 const API_URL = 'https://functions.poehali.dev/1019d584-2779-4f3c-b2f7-2e4e5becd755';
+const UPLOAD_URL = 'https://functions.poehali.dev/97f9138d-233f-48fc-9040-a5d16086a666';
 
 export interface Project {
   id: number;
@@ -24,6 +25,7 @@ export interface Document {
   date_payment: string | null;
   date_deadline: string | null;
   date_expiry: string | null;
+  pdf_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -39,6 +41,7 @@ export interface CreateDocumentData {
   date_payment?: string;
   date_deadline?: string;
   date_expiry?: string;
+  pdf_url?: string;
 }
 
 export interface UpdateDocumentData extends CreateDocumentData {
@@ -97,5 +100,31 @@ export const api = {
     });
     if (!response.ok) throw new Error('Failed to create project');
     return response.json();
+  },
+
+  async uploadPDF(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = reader.result?.toString().split(',')[1];
+          const response = await fetch(UPLOAD_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              file: base64,
+              filename: file.name
+            }),
+          });
+          if (!response.ok) throw new Error('Failed to upload PDF');
+          const data = await response.json();
+          resolve(data.url);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   },
 };

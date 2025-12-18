@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Document } from '@/lib/api';
 
@@ -127,14 +128,14 @@ const NotificationPanel = ({ documents }: NotificationPanelProps) => {
                       </Badge>
                     ))}
                   </div>
-                  {doc.customFields && Object.keys(doc.customFields).length > 0 && (
-                    <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t">
-                      {Object.entries(doc.customFields).map(([key, value]) => (
-                        <div key={key} className="text-sm">
-                          <span className="text-muted-foreground">{key}: </span>
-                          <span className="font-medium">{value}</span>
-                        </div>
-                      ))}
+                  {doc.pdf_url && (
+                    <div className="mt-4">
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={doc.pdf_url} target="_blank" rel="noopener noreferrer">
+                          <Icon name="FileText" size={16} className="mr-2" />
+                          Открыть PDF документ
+                        </a>
+                      </Button>
                     </div>
                   )}
                 </CardContent>

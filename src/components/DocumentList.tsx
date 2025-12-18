@@ -168,16 +168,26 @@ const DocumentList = ({ documents, filters, onArchive, isArchive }: DocumentList
                   </div>
                 )}
               </div>
-              {doc.tags && doc.tags.length > 0 && (
+              
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-wrap gap-2">
-                  {doc.tags.map(tag => (
+                  {doc.tags && doc.tags.length > 0 && doc.tags.map(tag => (
                     <Badge key={tag} variant="outline" className="text-xs">
                       <Icon name="Tag" size={12} className="mr-1" />
                       {tag}
                     </Badge>
                   ))}
                 </div>
-              )}
+                
+                {doc.pdf_url && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={doc.pdf_url} target="_blank" rel="noopener noreferrer">
+                      <Icon name="FileText" size={16} className="mr-2" />
+                      Открыть PDF
+                    </a>
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         );

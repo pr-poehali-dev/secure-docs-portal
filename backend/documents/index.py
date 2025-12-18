@@ -110,9 +110,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute('''
                     INSERT INTO documents (
                         title, description, project_id, priority, status, tags,
-                        date_signed, date_payment, date_deadline, date_expiry
+                        date_signed, date_payment, date_deadline, date_expiry, pdf_url
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING *
                 ''', (
                     body['title'],
@@ -124,7 +124,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     body.get('date_signed'),
                     body.get('date_payment'),
                     body.get('date_deadline'),
-                    body.get('date_expiry')
+                    body.get('date_expiry'),
+                    body.get('pdf_url')
                 ))
                 document = cur.fetchone()
                 conn.commit()
@@ -160,6 +161,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     date_payment = %s,
                     date_deadline = %s,
                     date_expiry = %s,
+                    pdf_url = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING *
@@ -174,6 +176,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 body.get('date_payment'),
                 body.get('date_deadline'),
                 body.get('date_expiry'),
+                body.get('pdf_url'),
                 doc_id
             ))
             document = cur.fetchone()

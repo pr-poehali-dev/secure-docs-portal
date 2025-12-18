@@ -42,6 +42,8 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
   const [dateDeadline, setDateDeadline] = useState<Date>();
   const [dateExpiry, setDateExpiry] = useState<Date>();
   const [tags, setTags] = useState('');
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const { toast } = useToast();
 
@@ -59,7 +61,7 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
     }
   }, [open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title || !description) {
@@ -69,6 +71,29 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
         variant: 'destructive',
       });
       return;
+    }
+
+    let pdfUrl: string | undefined;
+
+    if (pdfFile) {
+      try {
+        setUploading(true);
+        pdfUrl = await api.uploadPDF(pdfFile);
+        toast({
+          title: 'PDF загружен',
+          description: 'Файл успешно загружен в облако',
+        });
+      } catch (error) {
+        toast({
+          title: 'Ошибка загрузки',
+          description: 'Не удалось загрузить PDF файл',
+          variant: 'destructive',
+        });
+        setUploading(false);
+        return;
+      } finally {
+        setUploading(false);
+      }
     }
 
     const newDocument = {
@@ -81,6 +106,7 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
       date_payment: datePayment ? format(datePayment, 'yyyy-MM-dd') : undefined,
       date_deadline: dateDeadline ? format(dateDeadline, 'yyyy-MM-dd') : undefined,
       date_expiry: dateExpiry ? format(dateExpiry, 'yyyy-MM-dd') : undefined,
+      pdf_url: pdfUrl,
     };
 
     onAdd(newDocument);
@@ -94,6 +120,7 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
     setDateDeadline(undefined);
     setDateExpiry(undefined);
     setTags('');
+    setPdfFile(null);
     setOpen(false);
   };
 
@@ -282,14 +309,36 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
                 Разделяйте теги запятыми для удобной фильтрации
               </p>
             </div>
+
+            <div className="space-y-2 border-t pt-4">
+              <Label htmlFor="pdf">PDF документ</Label>
+              <div className="flex items-center gap-4">
+                <Input
+                  id="pdf"
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                  className="cursor-pointer"
+                />
+                {pdfFile && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Icon name="FileText" size={16} />
+                    <span>{pdfFile.name}</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Загрузите PDF файл документа (максимум 10 МБ)
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Отмена
             </Button>
-            <Button type="submit">
-              <Icon name="Save" size={18} className="mr-2" />
-              Сохранить документ
+            <Button type="submit" disabled={uploading}>
+              <Icon name={uploading ? "Loader2" : "Save"} size={18} className={`mr-2 ${uploading ? 'animate-spin' : ''}`} />
+              {uploading ? 'Загрузка...' : 'Сохранить документ'}
             </Button>
           </DialogFooter>
         </form>
