@@ -42,6 +42,12 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
   const [datePayment, setDatePayment] = useState<Date>();
   const [dateDeadline, setDateDeadline] = useState<Date>();
   const [dateExpiry, setDateExpiry] = useState<Date>();
+  const [milestoneDate1, setMilestoneDate1] = useState<Date>();
+  const [milestoneDesc1, setMilestoneDesc1] = useState('');
+  const [milestoneDate2, setMilestoneDate2] = useState<Date>();
+  const [milestoneDesc2, setMilestoneDesc2] = useState('');
+  const [milestoneDate3, setMilestoneDate3] = useState<Date>();
+  const [milestoneDesc3, setMilestoneDesc3] = useState('');
   const [tags, setTags] = useState('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
@@ -73,6 +79,12 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
       setDatePayment(document.date_payment ? new Date(document.date_payment) : undefined);
       setDateDeadline(document.date_deadline ? new Date(document.date_deadline) : undefined);
       setDateExpiry(document.date_expiry ? new Date(document.date_expiry) : undefined);
+      setMilestoneDate1(document.milestone_date_1 ? new Date(document.milestone_date_1) : undefined);
+      setMilestoneDesc1(document.milestone_desc_1 || '');
+      setMilestoneDate2(document.milestone_date_2 ? new Date(document.milestone_date_2) : undefined);
+      setMilestoneDesc2(document.milestone_desc_2 || '');
+      setMilestoneDate3(document.milestone_date_3 ? new Date(document.milestone_date_3) : undefined);
+      setMilestoneDesc3(document.milestone_desc_3 || '');
       setTags(document.tags.join(', '));
       setCurrentPdfUrl(document.pdf_url);
       setPdfFile(null);
@@ -125,6 +137,12 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
       date_payment: datePayment ? format(datePayment, 'yyyy-MM-dd') : null,
       date_deadline: dateDeadline ? format(dateDeadline, 'yyyy-MM-dd') : null,
       date_expiry: dateExpiry ? format(dateExpiry, 'yyyy-MM-dd') : null,
+      milestone_date_1: milestoneDate1 ? format(milestoneDate1, 'yyyy-MM-dd') : null,
+      milestone_desc_1: milestoneDesc1 || null,
+      milestone_date_2: milestoneDate2 ? format(milestoneDate2, 'yyyy-MM-dd') : null,
+      milestone_desc_2: milestoneDesc2 || null,
+      milestone_date_3: milestoneDate3 ? format(milestoneDate3, 'yyyy-MM-dd') : null,
+      milestone_desc_3: milestoneDesc3 || null,
       pdf_url: pdfUrl || null,
     });
 
@@ -294,6 +312,114 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
                       />
                     </PopoverContent>
                   </Popover>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 border-t pt-4">
+              <h3 className="font-semibold text-sm">Знаковые даты</h3>
+              
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Знаковая дата №1</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <Icon name="Calendar" size={16} className="mr-2" />
+                          {milestoneDate1 ? format(milestoneDate1, 'PP', { locale: ru }) : 'Выберите дату'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={milestoneDate1}
+                          onSelect={setMilestoneDate1}
+                          locale={ru}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-milestone-desc-1">Описание</Label>
+                    <Input
+                      id="edit-milestone-desc-1"
+                      placeholder="Например: Начало работ"
+                      value={milestoneDesc1}
+                      onChange={(e) => setMilestoneDesc1(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Знаковая дата №2</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <Icon name="Calendar" size={16} className="mr-2" />
+                          {milestoneDate2 ? format(milestoneDate2, 'PP', { locale: ru }) : 'Выберите дату'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={milestoneDate2}
+                          onSelect={setMilestoneDate2}
+                          locale={ru}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-milestone-desc-2">Описание</Label>
+                    <Input
+                      id="edit-milestone-desc-2"
+                      placeholder="Например: Промежуточная приемка"
+                      value={milestoneDesc2}
+                      onChange={(e) => setMilestoneDesc2(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Знаковая дата №3</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <Icon name="Calendar" size={16} className="mr-2" />
+                          {milestoneDate3 ? format(milestoneDate3, 'PP', { locale: ru }) : 'Выберите дату'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={milestoneDate3}
+                          onSelect={setMilestoneDate3}
+                          locale={ru}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-milestone-desc-3">Описание</Label>
+                    <Input
+                      id="edit-milestone-desc-3"
+                      placeholder="Например: Финальная сдача"
+                      value={milestoneDesc3}
+                      onChange={(e) => setMilestoneDesc3(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -67,6 +67,12 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         date_payment: doc.date_payment,
         date_deadline: doc.date_deadline,
         date_expiry: doc.date_expiry,
+        milestone_date_1: doc.milestone_date_1,
+        milestone_desc_1: doc.milestone_desc_1,
+        milestone_date_2: doc.milestone_date_2,
+        milestone_desc_2: doc.milestone_desc_2,
+        milestone_date_3: doc.milestone_date_3,
+        milestone_desc_3: doc.milestone_desc_3,
         pdf_url: doc.pdf_url,
       });
       setDocuments([newDoc, ...documents]);
@@ -96,6 +102,12 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         date_payment: doc.date_payment,
         date_deadline: doc.date_deadline,
         date_expiry: doc.date_expiry,
+        milestone_date_1: doc.milestone_date_1,
+        milestone_desc_1: doc.milestone_desc_1,
+        milestone_date_2: doc.milestone_date_2,
+        milestone_desc_2: doc.milestone_desc_2,
+        milestone_date_3: doc.milestone_date_3,
+        milestone_desc_3: doc.milestone_desc_3,
         pdf_url: doc.pdf_url,
       });
       setDocuments(documents.map(d => d.id === updated.id ? updated : d));

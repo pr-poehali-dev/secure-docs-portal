@@ -158,6 +158,47 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchi
                   </div>
                 )}
               </div>
+
+              {(doc.milestone_date_1 || doc.milestone_date_2 || doc.milestone_date_3) && (
+                <div className="border-t pt-3 mt-3">
+                  <h4 className="text-xs font-semibold text-muted-foreground mb-2">Знаковые даты</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {doc.milestone_date_1 && (
+                      <div className="flex items-start gap-2 text-sm bg-accent/30 rounded-md p-2">
+                        <Icon name="Star" size={14} className="text-primary mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground">
+                            {doc.milestone_desc_1 || 'Знаковая дата №1'}
+                          </p>
+                          <p className="font-medium truncate">{formatDate(doc.milestone_date_1)}</p>
+                        </div>
+                      </div>
+                    )}
+                    {doc.milestone_date_2 && (
+                      <div className="flex items-start gap-2 text-sm bg-accent/30 rounded-md p-2">
+                        <Icon name="Star" size={14} className="text-primary mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground">
+                            {doc.milestone_desc_2 || 'Знаковая дата №2'}
+                          </p>
+                          <p className="font-medium truncate">{formatDate(doc.milestone_date_2)}</p>
+                        </div>
+                      </div>
+                    )}
+                    {doc.milestone_date_3 && (
+                      <div className="flex items-start gap-2 text-sm bg-accent/30 rounded-md p-2">
+                        <Icon name="Star" size={14} className="text-primary mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground">
+                            {doc.milestone_desc_3 || 'Знаковая дата №3'}
+                          </p>
+                          <p className="font-medium truncate">{formatDate(doc.milestone_date_3)}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-wrap gap-2">

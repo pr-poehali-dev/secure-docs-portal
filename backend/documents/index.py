@@ -110,9 +110,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute('''
                     INSERT INTO documents (
                         title, description, project_id, status, tags,
-                        date_signed, date_payment, date_deadline, date_expiry, pdf_url
+                        date_signed, date_payment, date_deadline, date_expiry,
+                        milestone_date_1, milestone_desc_1,
+                        milestone_date_2, milestone_desc_2,
+                        milestone_date_3, milestone_desc_3,
+                        pdf_url
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING *
                 ''', (
                     body['title'],
@@ -124,6 +128,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     body.get('date_payment'),
                     body.get('date_deadline'),
                     body.get('date_expiry'),
+                    body.get('milestone_date_1'),
+                    body.get('milestone_desc_1'),
+                    body.get('milestone_date_2'),
+                    body.get('milestone_desc_2'),
+                    body.get('milestone_date_3'),
+                    body.get('milestone_desc_3'),
                     body.get('pdf_url')
                 ))
                 document = cur.fetchone()
@@ -203,6 +213,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     date_payment = %s,
                     date_deadline = %s,
                     date_expiry = %s,
+                    milestone_date_1 = %s,
+                    milestone_desc_1 = %s,
+                    milestone_date_2 = %s,
+                    milestone_desc_2 = %s,
+                    milestone_date_3 = %s,
+                    milestone_desc_3 = %s,
                     pdf_url = %s,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
@@ -217,6 +233,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 body.get('date_payment'),
                 body.get('date_deadline'),
                 body.get('date_expiry'),
+                body.get('milestone_date_1'),
+                body.get('milestone_desc_1'),
+                body.get('milestone_date_2'),
+                body.get('milestone_desc_2'),
+                body.get('milestone_date_3'),
+                body.get('milestone_desc_3'),
                 body.get('pdf_url'),
                 doc_id
             ))

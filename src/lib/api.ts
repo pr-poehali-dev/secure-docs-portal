@@ -24,6 +24,12 @@ export interface Document {
   date_payment: string | null;
   date_deadline: string | null;
   date_expiry: string | null;
+  milestone_date_1: string | null;
+  milestone_desc_1: string | null;
+  milestone_date_2: string | null;
+  milestone_desc_2: string | null;
+  milestone_date_3: string | null;
+  milestone_desc_3: string | null;
   pdf_url: string | null;
   created_at: string;
   updated_at: string;
@@ -39,6 +45,12 @@ export interface CreateDocumentData {
   date_payment?: string;
   date_deadline?: string;
   date_expiry?: string;
+  milestone_date_1?: string;
+  milestone_desc_1?: string;
+  milestone_date_2?: string;
+  milestone_desc_2?: string;
+  milestone_date_3?: string;
+  milestone_desc_3?: string;
   pdf_url?: string;
 }
 
