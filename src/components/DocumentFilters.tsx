@@ -23,6 +23,7 @@ interface DocumentFiltersProps {
     tags: string[];
     dateFrom: Date | null;
     dateTo: Date | null;
+    projectId: number | null;
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -58,6 +59,7 @@ const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => 
       tags: [],
       dateFrom: null,
       dateTo: null,
+      projectId: null,
     });
   };
 
@@ -66,7 +68,8 @@ const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => 
     filters.priority !== 'all' || 
     filters.tags.length > 0 || 
     filters.dateFrom || 
-    filters.dateTo;
+    filters.dateTo ||
+    filters.projectId;
 
   return (
     <Card className="sticky top-24">

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import Icon from '@/components/ui/icon';
-import { Document } from './DocumentPortal';
+import { Document } from '@/lib/api';
 import { useState } from 'react';
 import { ru } from 'date-fns/locale';
 
@@ -15,7 +15,8 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
 
   const documentsOnDate = selectedDate
     ? documents.filter(doc => {
-        const docDate = new Date(doc.dueDate);
+        if (!doc.date_deadline) return false;
+        const docDate = new Date(doc.date_deadline);
         return (
           docDate.getDate() === selectedDate.getDate() &&
           docDate.getMonth() === selectedDate.getMonth() &&
@@ -24,7 +25,9 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
       })
     : [];
 
-  const datesWithDocuments = documents.map(doc => doc.dueDate);
+  const datesWithDocuments = documents
+    .filter(doc => doc.date_deadline)
+    .map(doc => new Date(doc.date_deadline!));
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {

@@ -1,0 +1,31 @@
+{
+  "tests": [
+    {
+      "name": "Get all documents",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "0": {
+          "id": "number",
+          "title": "string",
+          "status": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get all projects",
+      "method": "GET",
+      "path": "/?action=projects",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "0": {
+          "id": "number",
+          "name": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

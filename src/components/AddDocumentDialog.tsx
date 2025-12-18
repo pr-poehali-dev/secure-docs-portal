@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,26 +24,45 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Icon from '@/components/ui/icon';
-import { Document } from './DocumentPortal';
 import { useToast } from '@/hooks/use-toast';
+import { api, Project } from '@/lib/api';
 
 interface AddDocumentDialogProps {
-  onAdd: (doc: Omit<Document, 'id'>) => void;
+  onAdd: (doc: any) => void;
 }
 
 const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [projectId, setProjectId] = useState<string>('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const [dueDate, setDueDate] = useState<Date>();
+  const [dateSigned, setDateSigned] = useState<Date>();
+  const [datePayment, setDatePayment] = useState<Date>();
+  const [dateDeadline, setDateDeadline] = useState<Date>();
+  const [dateExpiry, setDateExpiry] = useState<Date>();
   const [tags, setTags] = useState('');
+  const [projects, setProjects] = useState<Project[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const projectList = await api.getProjects();
+        setProjects(projectList);
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    };
+    if (open) {
+      loadProjects();
+    }
+  }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || !dueDate) {
+    if (!title || !description) {
       toast({
         title: 'Ошибка',
         description: 'Заполните все обязательные поля',
@@ -52,28 +71,28 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
       return;
     }
 
-    const newDocument: Omit<Document, 'id'> = {
+    const newDocument = {
       title,
       description,
-      date: new Date(),
-      dueDate,
+      project_id: projectId ? parseInt(projectId) : undefined,
       priority,
-      status: 'active',
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      customFields: {},
+      date_signed: dateSigned ? format(dateSigned, 'yyyy-MM-dd') : undefined,
+      date_payment: datePayment ? format(datePayment, 'yyyy-MM-dd') : undefined,
+      date_deadline: dateDeadline ? format(dateDeadline, 'yyyy-MM-dd') : undefined,
+      date_expiry: dateExpiry ? format(dateExpiry, 'yyyy-MM-dd') : undefined,
     };
 
     onAdd(newDocument);
-    
-    toast({
-      title: 'Документ добавлен',
-      description: `"${title}" успешно добавлен в систему`,
-    });
 
     setTitle('');
     setDescription('');
+    setProjectId('');
     setPriority('medium');
-    setDueDate(undefined);
+    setDateSigned(undefined);
+    setDatePayment(undefined);
+    setDateDeadline(undefined);
+    setDateExpiry(undefined);
     setTags('');
     setOpen(false);
   };
@@ -86,7 +105,7 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
           Добавить документ
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Новый документ</DialogTitle>
           <DialogDescription>
@@ -120,6 +139,22 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label htmlFor="project">Проект</Label>
+                <Select value={projectId} onValueChange={setProjectId}>
+                  <SelectTrigger id="project">
+                    <SelectValue placeholder="Выберите проект" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map(project => (
+                      <SelectItem key={project.id} value={String(project.id)}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="priority">Приоритет</Label>
                 <Select
                   value={priority}
@@ -135,29 +170,103 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label>Срок выполнения *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
-                      <Icon name="Calendar" size={16} className="mr-2" />
-                      {dueDate ? format(dueDate, 'PP', { locale: ru }) : 'Выберите дату'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dueDate}
-                      onSelect={setDueDate}
-                      locale={ru}
-                      disabled={(date) => date < new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
+            <div className="space-y-3 border-t pt-4">
+              <h3 className="font-semibold text-sm">Важные даты</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Дата подписания</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <Icon name="Calendar" size={16} className="mr-2" />
+                        {dateSigned ? format(dateSigned, 'PP', { locale: ru }) : 'Выберите дату'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateSigned}
+                        onSelect={setDateSigned}
+                        locale={ru}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Дата оплаты</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <Icon name="Calendar" size={16} className="mr-2" />
+                        {datePayment ? format(datePayment, 'PP', { locale: ru }) : 'Выберите дату'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={datePayment}
+                        onSelect={setDatePayment}
+                        locale={ru}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Дедлайн</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <Icon name="Calendar" size={16} className="mr-2" />
+                        {dateDeadline ? format(dateDeadline, 'PP', { locale: ru }) : 'Выберите дату'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateDeadline}
+                        onSelect={setDateDeadline}
+                        locale={ru}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Дата истечения</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <Icon name="Calendar" size={16} className="mr-2" />
+                        {dateExpiry ? format(dateExpiry, 'PP', { locale: ru }) : 'Выберите дату'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateExpiry}
+                        onSelect={setDateExpiry}
+                        locale={ru}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
 

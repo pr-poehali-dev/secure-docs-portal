@@ -2,18 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { Document } from './DocumentPortal';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import { Document } from '@/lib/api';
 
 interface DocumentListProps {
   documents: Document[];
@@ -23,13 +12,13 @@ interface DocumentListProps {
     tags: string[];
     dateFrom: Date | null;
     dateTo: Date | null;
+    projectId: number | null;
   };
-  onDelete: (id: string) => void;
-  onArchive?: (id: string) => void;
+  onArchive?: (id: number) => void;
   isArchive?: boolean;
 }
 
-const DocumentList = ({ documents, filters, onDelete, onArchive, isArchive }: DocumentListProps) => {
+const DocumentList = ({ documents, filters, onArchive, isArchive }: DocumentListProps) => {
   const filteredDocuments = documents.filter(doc => {
     if (filters.searchQuery && !doc.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
         !doc.description.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
@@ -41,11 +30,16 @@ const DocumentList = ({ documents, filters, onDelete, onArchive, isArchive }: Do
     if (filters.tags.length > 0 && !filters.tags.some(tag => doc.tags.includes(tag))) {
       return false;
     }
-    if (filters.dateFrom && doc.dueDate < filters.dateFrom) {
+    if (filters.projectId && doc.project_id !== filters.projectId) {
       return false;
     }
-    if (filters.dateTo && doc.dueDate > filters.dateTo) {
-      return false;
+    if (filters.dateFrom && doc.date_deadline) {
+      const deadline = new Date(doc.date_deadline);
+      if (deadline < filters.dateFrom) return false;
+    }
+    if (filters.dateTo && doc.date_deadline) {
+      const deadline = new Date(doc.date_deadline);
+      if (deadline > filters.dateTo) return false;
     }
     return true;
   });
@@ -68,13 +62,20 @@ const DocumentList = ({ documents, filters, onDelete, onArchive, isArchive }: Do
     }
   };
 
-  const getDaysUntilDue = (dueDate: Date) => {
+  const getDaysUntilDue = (dateStr: string | null) => {
+    if (!dateStr) return null;
+    const dueDate = new Date(dateStr);
     const days = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
     if (days < 0) return { text: 'Просрочен', variant: 'destructive' as const };
     if (days === 0) return { text: 'Сегодня', variant: 'destructive' as const };
     if (days <= 7) return { text: `${days} дн.`, variant: 'destructive' as const };
     if (days <= 14) return { text: `${days} дн.`, variant: 'default' as const };
     return { text: `${days} дн.`, variant: 'secondary' as const };
+  };
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString('ru-RU');
   };
 
   if (filteredDocuments.length === 0) {
@@ -92,22 +93,28 @@ const DocumentList = ({ documents, filters, onDelete, onArchive, isArchive }: Do
   return (
     <div className="space-y-4">
       {filteredDocuments.map(doc => {
-        const daysUntil = getDaysUntilDue(doc.dueDate);
+        const daysUntil = getDaysUntilDue(doc.date_deadline);
         
         return (
           <Card key={doc.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <CardTitle className="text-lg">{doc.title}</CardTitle>
                     <Badge variant={getPriorityColor(doc.priority)}>
                       {getPriorityLabel(doc.priority)}
                     </Badge>
-                    {!isArchive && (
+                    {!isArchive && daysUntil && (
                       <Badge variant={daysUntil.variant}>
                         <Icon name="Clock" size={12} className="mr-1" />
                         {daysUntil.text}
+                      </Badge>
+                    )}
+                    {doc.project_name && (
+                      <Badge variant="outline">
+                        <Icon name="FolderKanban" size={12} className="mr-1" />
+                        {doc.project_name}
                       </Badge>
                     )}
                   </div>
@@ -119,56 +126,55 @@ const DocumentList = ({ documents, filters, onDelete, onArchive, isArchive }: Do
                       <Icon name="Archive" size={18} />
                     </Button>
                   )}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Icon name="Trash2" size={18} className="text-destructive" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Удалить документ?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Это действие невозможно отменить. Документ будет удален навсегда.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Отмена</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDelete(doc.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Удалить
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-4 mb-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Icon name="Calendar" size={16} />
-                  <span>Создан: {doc.date.toLocaleDateString('ru-RU')}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Icon name="CalendarClock" size={16} />
-                  <span>Срок: {doc.dueDate.toLocaleDateString('ru-RU')}</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {doc.tags.map(tag => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    <Icon name="Tag" size={12} className="mr-1" />
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-              {doc.customFields && Object.keys(doc.customFields).length > 0 && (
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t">
-                  {Object.entries(doc.customFields).map(([key, value]) => (
-                    <div key={key} className="text-sm">
-                      <span className="text-muted-foreground">{key}: </span>
-                      <span className="font-medium">{value}</span>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                {doc.date_signed && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Icon name="FileSignature" size={16} className="text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Подписан</p>
+                      <p className="font-medium">{formatDate(doc.date_signed)}</p>
                     </div>
+                  </div>
+                )}
+                {doc.date_payment && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Icon name="DollarSign" size={16} className="text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Оплата</p>
+                      <p className="font-medium">{formatDate(doc.date_payment)}</p>
+                    </div>
+                  </div>
+                )}
+                {doc.date_deadline && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Icon name="CalendarClock" size={16} className="text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Дедлайн</p>
+                      <p className="font-medium">{formatDate(doc.date_deadline)}</p>
+                    </div>
+                  </div>
+                )}
+                {doc.date_expiry && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Icon name="CalendarX" size={16} className="text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Истекает</p>
+                      <p className="font-medium">{formatDate(doc.date_expiry)}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {doc.tags && doc.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {doc.tags.map(tag => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      <Icon name="Tag" size={12} className="mr-1" />
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               )}

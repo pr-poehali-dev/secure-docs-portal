@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
@@ -7,82 +7,18 @@ import DocumentFilters from './DocumentFilters';
 import DocumentCalendar from './DocumentCalendar';
 import NotificationPanel from './NotificationPanel';
 import AddDocumentDialog from './AddDocumentDialog';
+import { api, Document } from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
 interface DocumentPortalProps {
   onLogout: () => void;
 }
 
-export interface Document {
-  id: string;
-  title: string;
-  description: string;
-  date: Date;
-  dueDate: Date;
-  priority: 'low' | 'medium' | 'high';
-  status: 'active' | 'archived';
-  tags: string[];
-  customFields?: Record<string, string>;
-}
-
 const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
   const [activeView, setActiveView] = useState<'documents' | 'calendar' | 'notifications' | 'archive'>('documents');
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: '1',
-      title: 'Договор поставки оборудования',
-      description: 'Контракт с ООО "Техносервис" на поставку серверного оборудования',
-      date: new Date('2024-01-15'),
-      dueDate: new Date('2024-12-30'),
-      priority: 'high',
-      status: 'active',
-      tags: ['договор', 'поставка', 'оборудование'],
-      customFields: { contractor: 'ООО "Техносервис"', amount: '5 000 000 ₽' }
-    },
-    {
-      id: '2',
-      title: 'Годовой отчет 2024',
-      description: 'Финансовая отчетность за 2024 год для налоговой службы',
-      date: new Date('2024-11-20'),
-      dueDate: new Date('2024-12-25'),
-      priority: 'high',
-      status: 'active',
-      tags: ['отчетность', 'финансы', 'налоги'],
-      customFields: { department: 'Бухгалтерия', type: 'Финансовый отчет' }
-    },
-    {
-      id: '3',
-      title: 'Протокол собрания акционеров',
-      description: 'Решения годового собрания акционеров от 15.11.2024',
-      date: new Date('2024-11-15'),
-      dueDate: new Date('2025-01-15'),
-      priority: 'medium',
-      status: 'active',
-      tags: ['протокол', 'акционеры', 'юридический'],
-      customFields: { participants: '23 акционера', location: 'Конференц-зал' }
-    },
-    {
-      id: '4',
-      title: 'Лицензионное соглашение',
-      description: 'Соглашение на использование программного обеспечения',
-      date: new Date('2024-06-10'),
-      dueDate: new Date('2025-06-10'),
-      priority: 'low',
-      status: 'active',
-      tags: ['лицензия', 'ПО', 'договор'],
-      customFields: { vendor: 'Microsoft', license_type: 'Enterprise' }
-    },
-    {
-      id: '5',
-      title: 'Архивный договор аренды 2023',
-      description: 'Завершенный договор аренды офисного помещения',
-      date: new Date('2023-01-10'),
-      dueDate: new Date('2023-12-31'),
-      priority: 'low',
-      status: 'archived',
-      tags: ['аренда', 'офис', 'завершен'],
-      customFields: { location: 'ул. Ленина, д.25', area: '150 кв.м' }
-    }
-  ]);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const [filters, setFilters] = useState({
     searchQuery: '',
@@ -90,24 +26,87 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
     tags: [] as string[],
     dateFrom: null as Date | null,
     dateTo: null as Date | null,
+    projectId: null as number | null,
   });
 
-  const addDocument = (doc: Omit<Document, 'id'>) => {
-    const newDoc = {
-      ...doc,
-      id: String(Date.now()),
-    };
-    setDocuments([newDoc, ...documents]);
+  const loadDocuments = async () => {
+    try {
+      setLoading(true);
+      const docs = await api.getDocuments();
+      setDocuments(docs);
+    } catch (error) {
+      toast({
+        title: 'Ошибка загрузки',
+        description: 'Не удалось загрузить документы',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const deleteDocument = (id: string) => {
-    setDocuments(documents.filter(doc => doc.id !== id));
+  useEffect(() => {
+    loadDocuments();
+  }, []);
+
+  const addDocument = async (doc: any) => {
+    try {
+      const newDoc = await api.createDocument({
+        title: doc.title,
+        description: doc.description,
+        project_id: doc.project_id,
+        priority: doc.priority,
+        status: 'active',
+        tags: doc.tags,
+        date_signed: doc.date_signed,
+        date_payment: doc.date_payment,
+        date_deadline: doc.date_deadline,
+        date_expiry: doc.date_expiry,
+      });
+      setDocuments([newDoc, ...documents]);
+      toast({
+        title: 'Документ добавлен',
+        description: `"${newDoc.title}" успешно добавлен в систему`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось добавить документ',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const archiveDocument = (id: string) => {
-    setDocuments(documents.map(doc => 
-      doc.id === id ? { ...doc, status: 'archived' as const } : doc
-    ));
+  const updateDocument = async (doc: Document) => {
+    try {
+      const updated = await api.updateDocument({
+        id: doc.id,
+        title: doc.title,
+        description: doc.description,
+        project_id: doc.project_id,
+        priority: doc.priority,
+        status: doc.status,
+        tags: doc.tags,
+        date_signed: doc.date_signed,
+        date_payment: doc.date_payment,
+        date_deadline: doc.date_deadline,
+        date_expiry: doc.date_expiry,
+      });
+      setDocuments(documents.map(d => d.id === updated.id ? updated : d));
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось обновить документ',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const archiveDocument = async (id: number) => {
+    const doc = documents.find(d => d.id === id);
+    if (doc) {
+      await updateDocument({ ...doc, status: 'archived' });
+    }
   };
 
   const activeDocuments = documents.filter(doc => doc.status === 'active');
@@ -115,10 +114,27 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
 
   const upcomingDeadlines = activeDocuments
     .filter(doc => {
-      const daysUntil = Math.ceil((doc.dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+      if (!doc.date_deadline) return false;
+      const deadline = new Date(doc.date_deadline);
+      const daysUntil = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
       return daysUntil <= 14 && daysUntil >= 0;
     })
-    .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+    .sort((a, b) => {
+      const dateA = a.date_deadline ? new Date(a.date_deadline).getTime() : 0;
+      const dateB = b.date_deadline ? new Date(b.date_deadline).getTime() : 0;
+      return dateA - dateB;
+    });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Icon name="Loader2" size={48} className="animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Загрузка документов...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -202,7 +218,6 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
               <DocumentList
                 documents={activeDocuments}
                 filters={filters}
-                onDelete={deleteDocument}
                 onArchive={archiveDocument}
               />
             </div>
@@ -223,7 +238,6 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
             <DocumentList
               documents={archivedDocuments}
               filters={filters}
-              onDelete={deleteDocument}
               isArchive
             />
           </div>

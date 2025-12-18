@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { Document } from './DocumentPortal';
+import { Document } from '@/lib/api';
 
 interface NotificationPanelProps {
   documents: Document[];
@@ -14,9 +14,11 @@ const NotificationPanel = ({ documents }: NotificationPanelProps) => {
     return { level: 'Скоро', color: 'secondary' as const, icon: 'Info' };
   };
 
-  const sortedDocuments = [...documents].sort((a, b) => 
-    a.dueDate.getTime() - b.dueDate.getTime()
-  );
+  const sortedDocuments = [...documents].sort((a, b) => {
+    const dateA = a.date_deadline ? new Date(a.date_deadline).getTime() : 0;
+    const dateB = b.date_deadline ? new Date(b.date_deadline).getTime() : 0;
+    return dateA - dateB;
+  });
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -52,7 +54,9 @@ const NotificationPanel = ({ documents }: NotificationPanelProps) => {
       ) : (
         <div className="space-y-4">
           {sortedDocuments.map(doc => {
-            const daysUntil = Math.ceil((doc.dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            if (!doc.date_deadline) return null;
+            const deadline = new Date(doc.date_deadline);
+            const daysUntil = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
             const urgency = getUrgencyLevel(daysUntil);
 
             return (
@@ -72,6 +76,12 @@ const NotificationPanel = ({ documents }: NotificationPanelProps) => {
                         <Badge variant="outline">
                           {daysUntil === 0 ? 'Сегодня' : `Через ${daysUntil} ${daysUntil === 1 ? 'день' : daysUntil < 5 ? 'дня' : 'дней'}`}
                         </Badge>
+                        {doc.project_name && (
+                          <Badge variant="outline">
+                            <Icon name="FolderKanban" size={12} className="mr-1" />
+                            {doc.project_name}
+                          </Badge>
+                        )}
                       </div>
                       <CardTitle className="text-xl mb-1">{doc.title}</CardTitle>
                       <CardDescription>{doc.description}</CardDescription>
@@ -80,18 +90,34 @@ const NotificationPanel = ({ documents }: NotificationPanelProps) => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Icon name="Calendar" size={16} className="text-muted-foreground" />
-                      <span className="text-muted-foreground">Создан:</span>
-                      <span className="font-medium">{doc.date.toLocaleDateString('ru-RU')}</span>
-                    </div>
+                    {doc.date_signed && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Icon name="FileSignature" size={16} className="text-muted-foreground" />
+                        <span className="text-muted-foreground">Подписан:</span>
+                        <span className="font-medium">{new Date(doc.date_signed).toLocaleDateString('ru-RU')}</span>
+                      </div>
+                    )}
+                    {doc.date_payment && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Icon name="DollarSign" size={16} className="text-muted-foreground" />
+                        <span className="text-muted-foreground">Оплата:</span>
+                        <span className="font-medium">{new Date(doc.date_payment).toLocaleDateString('ru-RU')}</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 text-sm">
                       <Icon name="CalendarClock" size={16} className="text-muted-foreground" />
                       <span className="text-muted-foreground">Дедлайн:</span>
                       <span className="font-medium text-destructive">
-                        {doc.dueDate.toLocaleDateString('ru-RU')}
+                        {deadline.toLocaleDateString('ru-RU')}
                       </span>
                     </div>
+                    {doc.date_expiry && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Icon name="CalendarX" size={16} className="text-muted-foreground" />
+                        <span className="text-muted-foreground">Истекает:</span>
+                        <span className="font-medium">{new Date(doc.date_expiry).toLocaleDateString('ru-RU')}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-3">
                     {doc.tags.map(tag => (
