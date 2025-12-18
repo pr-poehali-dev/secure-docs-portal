@@ -110,13 +110,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 cur.execute('''
                     INSERT INTO documents (
                         title, description, project_id, status, tags,
-                        date_signed, date_payment, date_deadline, date_expiry,
+                        date_signed, date_deadline, date_expiry,
                         milestone_date_1, milestone_desc_1,
                         milestone_date_2, milestone_desc_2,
                         milestone_date_3, milestone_desc_3,
                         pdf_url
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING *
                 ''', (
                     body['title'],
@@ -125,7 +125,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     body.get('status', 'pending'),
                     body.get('tags', []),
                     body.get('date_signed'),
-                    body.get('date_payment'),
                     body.get('date_deadline'),
                     body.get('date_expiry'),
                     body.get('milestone_date_1'),
@@ -210,7 +209,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     status = %s,
                     tags = %s,
                     date_signed = %s,
-                    date_payment = %s,
                     date_deadline = %s,
                     date_expiry = %s,
                     milestone_date_1 = %s,
@@ -230,7 +228,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 body.get('status'),
                 body.get('tags'),
                 body.get('date_signed'),
-                body.get('date_payment'),
                 body.get('date_deadline'),
                 body.get('date_expiry'),
                 body.get('milestone_date_1'),

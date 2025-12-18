@@ -37,7 +37,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
   const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState<string>('');
   const [dateSigned, setDateSigned] = useState<Date>();
-  const [datePayment, setDatePayment] = useState<Date>();
   const [dateDeadline, setDateDeadline] = useState<Date>();
   const [dateExpiry, setDateExpiry] = useState<Date>();
   const [milestoneDate1, setMilestoneDate1] = useState<Date>();
@@ -107,7 +106,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
       project_id: projectId ? parseInt(projectId) : undefined,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       date_signed: dateSigned ? format(dateSigned, 'yyyy-MM-dd') : undefined,
-      date_payment: datePayment ? format(datePayment, 'yyyy-MM-dd') : undefined,
       date_deadline: dateDeadline ? format(dateDeadline, 'yyyy-MM-dd') : undefined,
       date_expiry: dateExpiry ? format(dateExpiry, 'yyyy-MM-dd') : undefined,
       milestone_date_1: milestoneDate1 ? format(milestoneDate1, 'yyyy-MM-dd') : undefined,
@@ -125,7 +123,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
     setDescription('');
     setProjectId('');
     setDateSigned(undefined);
-    setDatePayment(undefined);
     setDateDeadline(undefined);
     setDateExpiry(undefined);
     setMilestoneDate1(undefined);
@@ -233,29 +230,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
                         mode="single"
                         selected={dateSigned}
                         onSelect={setDateSigned}
-                        locale={ru}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Дата оплаты</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <Icon name="Calendar" size={16} className="mr-2" />
-                        {datePayment ? format(datePayment, 'PP', { locale: ru }) : 'Выберите дату'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={datePayment}
-                        onSelect={setDatePayment}
                         locale={ru}
                       />
                     </PopoverContent>

@@ -21,7 +21,6 @@ export interface Document {
   tags: string[];
   date_created: string;
   date_signed: string | null;
-  date_payment: string | null;
   date_deadline: string | null;
   date_expiry: string | null;
   milestone_date_1: string | null;
@@ -42,7 +41,6 @@ export interface CreateDocumentData {
   status?: 'pending' | 'active' | 'archived';
   tags?: string[];
   date_signed?: string;
-  date_payment?: string;
   date_deadline?: string;
   date_expiry?: string;
   milestone_date_1?: string;

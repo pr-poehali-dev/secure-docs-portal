@@ -39,7 +39,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
   const [projectId, setProjectId] = useState<string>('');
   const [status, setStatus] = useState<'pending' | 'active' | 'archived'>('active');
   const [dateSigned, setDateSigned] = useState<Date>();
-  const [datePayment, setDatePayment] = useState<Date>();
   const [dateDeadline, setDateDeadline] = useState<Date>();
   const [dateExpiry, setDateExpiry] = useState<Date>();
   const [milestoneDate1, setMilestoneDate1] = useState<Date>();
@@ -76,7 +75,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
       setProjectId(document.project_id ? String(document.project_id) : '');
       setStatus(document.status);
       setDateSigned(document.date_signed ? new Date(document.date_signed) : undefined);
-      setDatePayment(document.date_payment ? new Date(document.date_payment) : undefined);
       setDateDeadline(document.date_deadline ? new Date(document.date_deadline) : undefined);
       setDateExpiry(document.date_expiry ? new Date(document.date_expiry) : undefined);
       setMilestoneDate1(document.milestone_date_1 ? new Date(document.milestone_date_1) : undefined);
@@ -134,7 +132,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
       status,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       date_signed: dateSigned ? format(dateSigned, 'yyyy-MM-dd') : null,
-      date_payment: datePayment ? format(datePayment, 'yyyy-MM-dd') : null,
       date_deadline: dateDeadline ? format(dateDeadline, 'yyyy-MM-dd') : null,
       date_expiry: dateExpiry ? format(dateExpiry, 'yyyy-MM-dd') : null,
       milestone_date_1: milestoneDate1 ? format(milestoneDate1, 'yyyy-MM-dd') : null,
@@ -239,29 +236,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
                         mode="single"
                         selected={dateSigned}
                         onSelect={setDateSigned}
-                        locale={ru}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Дата оплаты</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <Icon name="Calendar" size={16} className="mr-2" />
-                        {datePayment ? format(datePayment, 'PP', { locale: ru }) : 'Выберите дату'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={datePayment}
-                        onSelect={setDatePayment}
                         locale={ru}
                       />
                     </PopoverContent>

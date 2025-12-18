@@ -130,15 +130,6 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchi
                     </div>
                   </div>
                 )}
-                {doc.date_payment && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <Icon name="DollarSign" size={16} className="text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="text-xs text-muted-foreground">Оплата</p>
-                      <p className="font-medium">{formatDate(doc.date_payment)}</p>
-                    </div>
-                  </div>
-                )}
                 {doc.date_deadline && (
                   <div className="flex items-start gap-2 text-sm">
                     <Icon name="CalendarClock" size={16} className="text-muted-foreground mt-0.5" />
