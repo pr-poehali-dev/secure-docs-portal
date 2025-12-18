@@ -37,7 +37,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState<string>('');
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [status, setStatus] = useState<'pending' | 'active' | 'archived'>('active');
   const [dateSigned, setDateSigned] = useState<Date>();
   const [datePayment, setDatePayment] = useState<Date>();
@@ -69,7 +68,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
       setTitle(document.title);
       setDescription(document.description);
       setProjectId(document.project_id ? String(document.project_id) : '');
-      setPriority(document.priority);
       setStatus(document.status);
       setDateSigned(document.date_signed ? new Date(document.date_signed) : undefined);
       setDatePayment(document.date_payment ? new Date(document.date_payment) : undefined);
@@ -121,7 +119,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
       title,
       description,
       project_id: projectId ? parseInt(projectId) : null,
-      priority,
       status,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       date_signed: dateSigned ? format(dateSigned, 'yyyy-MM-dd') : null,
@@ -168,7 +165,7 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-project">Проект</Label>
                 <Select value={projectId} onValueChange={setProjectId}>
@@ -181,23 +178,6 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
                         {project.name}
                       </SelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-priority">Приоритет</Label>
-                <Select
-                  value={priority}
-                  onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}
-                >
-                  <SelectTrigger id="edit-priority">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Низкий</SelectItem>
-                    <SelectItem value="medium">Средний</SelectItem>
-                    <SelectItem value="high">Высокий</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

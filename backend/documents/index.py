@@ -109,16 +109,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             else:
                 cur.execute('''
                     INSERT INTO documents (
-                        title, description, project_id, priority, status, tags,
+                        title, description, project_id, status, tags,
                         date_signed, date_payment, date_deadline, date_expiry, pdf_url
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     RETURNING *
                 ''', (
                     body['title'],
                     body.get('description', ''),
                     body.get('project_id'),
-                    body.get('priority', 'medium'),
                     body.get('status', 'pending'),
                     body.get('tags', []),
                     body.get('date_signed'),
@@ -154,7 +153,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 SET title = %s,
                     description = %s,
                     project_id = %s,
-                    priority = %s,
                     status = %s,
                     tags = %s,
                     date_signed = %s,
@@ -169,7 +167,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 body.get('title'),
                 body.get('description'),
                 body.get('project_id'),
-                body.get('priority'),
                 body.get('status'),
                 body.get('tags'),
                 body.get('date_signed'),

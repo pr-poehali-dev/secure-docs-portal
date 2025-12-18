@@ -19,7 +19,6 @@ import { ru } from 'date-fns/locale';
 interface DocumentFiltersProps {
   filters: {
     searchQuery: string;
-    priority: string;
     tags: string[];
     dateFrom: Date | null;
     dateTo: Date | null;
@@ -55,7 +54,6 @@ const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => 
   const resetFilters = () => {
     onFiltersChange({
       searchQuery: '',
-      priority: 'all',
       tags: [],
       dateFrom: null,
       dateTo: null,
@@ -65,7 +63,6 @@ const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => 
 
   const hasActiveFilters = 
     filters.searchQuery || 
-    filters.priority !== 'all' || 
     filters.tags.length > 0 || 
     filters.dateFrom || 
     filters.dateTo ||
@@ -100,24 +97,6 @@ const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => 
               className="pl-9"
             />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="priority">Приоритет</Label>
-          <Select
-            value={filters.priority}
-            onValueChange={(value) => onFiltersChange({ ...filters, priority: value })}
-          >
-            <SelectTrigger id="priority">
-              <SelectValue placeholder="Все приоритеты" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все приоритеты</SelectItem>
-              <SelectItem value="high">Высокий</SelectItem>
-              <SelectItem value="medium">Средний</SelectItem>
-              <SelectItem value="low">Низкий</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="space-y-2">

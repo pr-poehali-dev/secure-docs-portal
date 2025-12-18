@@ -26,9 +26,6 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchi
         !doc.description.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
       return false;
     }
-    if (filters.priority !== 'all' && doc.priority !== filters.priority) {
-      return false;
-    }
     if (filters.tags.length > 0 && !filters.tags.some(tag => doc.tags.includes(tag))) {
       return false;
     }
@@ -46,23 +43,7 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchi
     return true;
   });
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
-    }
-  };
 
-  const getPriorityLabel = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'Высокий';
-      case 'medium': return 'Средний';
-      case 'low': return 'Низкий';
-      default: return priority;
-    }
-  };
 
   const getDaysUntilDue = (dateStr: string | null) => {
     if (!dateStr) return null;
@@ -104,9 +85,6 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchi
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <CardTitle className="text-lg">{doc.title}</CardTitle>
-                    <Badge variant={getPriorityColor(doc.priority)}>
-                      {getPriorityLabel(doc.priority)}
-                    </Badge>
                     {!isArchive && daysUntil && (
                       <Badge variant={daysUntil.variant}>
                         <Icon name="Clock" size={12} className="mr-1" />

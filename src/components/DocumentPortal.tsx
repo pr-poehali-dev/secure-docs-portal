@@ -28,7 +28,6 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
 
   const [filters, setFilters] = useState({
     searchQuery: '',
-    priority: 'all',
     tags: [] as string[],
     dateFrom: null as Date | null,
     dateTo: null as Date | null,
@@ -61,7 +60,6 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         title: doc.title,
         description: doc.description,
         project_id: doc.project_id,
-        priority: doc.priority,
         status: 'active',
         tags: doc.tags,
         date_signed: doc.date_signed,
@@ -91,7 +89,6 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         title: doc.title,
         description: doc.description,
         project_id: doc.project_id,
-        priority: doc.priority,
         status: doc.status,
         tags: doc.tags,
         date_signed: doc.date_signed,

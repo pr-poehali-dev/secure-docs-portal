@@ -36,7 +36,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState<string>('');
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dateSigned, setDateSigned] = useState<Date>();
   const [datePayment, setDatePayment] = useState<Date>();
   const [dateDeadline, setDateDeadline] = useState<Date>();
@@ -100,7 +99,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
       title,
       description,
       project_id: projectId ? parseInt(projectId) : undefined,
-      priority,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
       date_signed: dateSigned ? format(dateSigned, 'yyyy-MM-dd') : undefined,
       date_payment: datePayment ? format(datePayment, 'yyyy-MM-dd') : undefined,
@@ -114,7 +112,6 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
     setTitle('');
     setDescription('');
     setProjectId('');
-    setPriority('medium');
     setDateSigned(undefined);
     setDatePayment(undefined);
     setDateDeadline(undefined);
@@ -164,36 +161,34 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="project">Проект</Label>
-                <Select value={projectId} onValueChange={setProjectId}>
-                  <SelectTrigger id="project">
-                    <SelectValue placeholder="Выберите проект" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map(project => (
-                      <SelectItem key={project.id} value={String(project.id)}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="project">Проект</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="Выберите проект" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map(project => (
+                    <SelectItem key={project.id} value={String(project.id)}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
+            <div className="space-y-3 border-t pt-4" style={{ display: 'none' }}>
               <div className="space-y-2">
                 <Label htmlFor="priority">Приоритет</Label>
                 <Select
-                  value={priority}
-                  onValueChange={(value: 'low' | 'medium' | 'high') => setPriority(value)}
+                  value={'medium'}
+                  onValueChange={() => {}}
                 >
                   <SelectTrigger id="priority">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Низкий</SelectItem>
                     <SelectItem value="medium">Средний</SelectItem>
-                    <SelectItem value="high">Высокий</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

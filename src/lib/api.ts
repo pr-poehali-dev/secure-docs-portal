@@ -17,7 +17,6 @@ export interface Document {
   description: string;
   project_id: number | null;
   project_name?: string;
-  priority: 'low' | 'medium' | 'high';
   status: 'pending' | 'active' | 'archived';
   tags: string[];
   date_created: string;
@@ -34,7 +33,6 @@ export interface CreateDocumentData {
   title: string;
   description: string;
   project_id?: number;
-  priority?: 'low' | 'medium' | 'high';
   status?: 'pending' | 'active' | 'archived';
   tags?: string[];
   date_signed?: string;
