@@ -16,10 +16,11 @@ interface DocumentListProps {
   };
   onArchive?: (id: number) => void;
   onEdit?: (doc: Document) => void;
+  onDelete?: (doc: Document) => void;
   isArchive?: boolean;
 }
 
-const DocumentList = ({ documents, filters, onArchive, onEdit, isArchive }: DocumentListProps) => {
+const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchive }: DocumentListProps) => {
   const filteredDocuments = documents.filter(doc => {
     if (filters.searchQuery && !doc.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
         !doc.description.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
@@ -130,6 +131,11 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, isArchive }: Docu
                   {!isArchive && onArchive && (
                     <Button variant="ghost" size="icon" onClick={() => onArchive(doc.id)} title="Архивировать">
                       <Icon name="Archive" size={18} />
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button variant="ghost" size="icon" onClick={() => onDelete(doc)} title="Удалить" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                      <Icon name="Trash2" size={18} />
                     </Button>
                   )}
                 </div>

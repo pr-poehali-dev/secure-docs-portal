@@ -127,4 +127,11 @@ export const api = {
       reader.readAsDataURL(file);
     });
   },
+
+  async deleteDocument(id: number): Promise<void> {
+    const response = await fetch(`${API_URL}?id=${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete document');
+  },
 };

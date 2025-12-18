@@ -197,6 +197,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif method == 'DELETE':
+            params = event.get('queryStringParameters', {})
+            doc_id = params.get('id')
+            
+            if not doc_id:
+                return {
+                    'statusCode': 400,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Document ID required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute('DELETE FROM documents WHERE id = %s RETURNING id', (doc_id,))
+            deleted = cur.fetchone()
+            conn.commit()
+            
+            if not deleted:
+                return {
+                    'statusCode': 404,
+                    'headers': headers,
+                    'body': json.dumps({'error': 'Document not found'}),
+                    'isBase64Encoded': False
+                }
+            
+            return {
+                'statusCode': 200,
+                'headers': headers,
+                'body': json.dumps({'success': True, 'id': deleted['id']}),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 405,

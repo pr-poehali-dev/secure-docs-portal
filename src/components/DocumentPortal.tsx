@@ -8,6 +8,7 @@ import DocumentCalendar from './DocumentCalendar';
 import NotificationPanel from './NotificationPanel';
 import AddDocumentDialog from './AddDocumentDialog';
 import EditDocumentDialog from './EditDocumentDialog';
+import DeleteDocumentDialog from './DeleteDocumentDialog';
 import { api, Document } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,6 +22,8 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
   const [loading, setLoading] = useState(true);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deletingDocument, setDeletingDocument] = useState<Document | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const [filters, setFilters] = useState({
@@ -121,6 +124,32 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
   const handleEditDocument = (doc: Document) => {
     setEditingDocument(doc);
     setEditDialogOpen(true);
+  };
+
+  const handleDeleteDocument = (doc: Document) => {
+    setDeletingDocument(doc);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteDocument = async () => {
+    if (!deletingDocument) return;
+
+    try {
+      await api.deleteDocument(deletingDocument.id);
+      setDocuments(documents.filter(d => d.id !== deletingDocument.id));
+      toast({
+        title: 'Документ удален',
+        description: `"${deletingDocument.title}" успешно удален из системы`,
+      });
+      setDeleteDialogOpen(false);
+      setDeletingDocument(null);
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось удалить документ',
+        variant: 'destructive',
+      });
+    }
   };
 
   const activeDocuments = documents.filter(doc => doc.status === 'active');
@@ -234,6 +263,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
                 filters={filters}
                 onArchive={archiveDocument}
                 onEdit={handleEditDocument}
+                onDelete={handleDeleteDocument}
               />
             </div>
           </div>
@@ -253,6 +283,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
             <DocumentList
               documents={archivedDocuments}
               filters={filters}
+              onDelete={handleDeleteDocument}
               isArchive
             />
           </div>
@@ -264,6 +295,13 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onUpdate={updateDocument}
+      />
+
+      <DeleteDocumentDialog
+        document={deletingDocument}
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDeleteDocument}
       />
     </div>
   );
