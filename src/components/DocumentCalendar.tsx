@@ -10,33 +10,115 @@ interface DocumentCalendarProps {
   documents: Document[];
 }
 
+interface DateEvent {
+  document: Document;
+  dateType: 'signed' | 'deadline' | 'expiry' | 'milestone1' | 'milestone2' | 'milestone3';
+  dateLabel: string;
+  date: Date;
+}
+
 const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
-  const documentsOnDate = selectedDate
-    ? documents.filter(doc => {
-        if (!doc.date_deadline) return false;
-        const docDate = new Date(doc.date_deadline);
+  const getAllDateEvents = (): DateEvent[] => {
+    const events: DateEvent[] = [];
+
+    documents.forEach(doc => {
+      if (doc.date_signed) {
+        events.push({
+          document: doc,
+          dateType: 'signed',
+          dateLabel: 'Дата подписания',
+          date: new Date(doc.date_signed),
+        });
+      }
+      if (doc.date_deadline) {
+        events.push({
+          document: doc,
+          dateType: 'deadline',
+          dateLabel: 'Дедлайн',
+          date: new Date(doc.date_deadline),
+        });
+      }
+      if (doc.date_expiry) {
+        events.push({
+          document: doc,
+          dateType: 'expiry',
+          dateLabel: 'Дата истечения',
+          date: new Date(doc.date_expiry),
+        });
+      }
+      if (doc.milestone_date_1) {
+        events.push({
+          document: doc,
+          dateType: 'milestone1',
+          dateLabel: doc.milestone_desc_1 || 'Знаковая дата №1',
+          date: new Date(doc.milestone_date_1),
+        });
+      }
+      if (doc.milestone_date_2) {
+        events.push({
+          document: doc,
+          dateType: 'milestone2',
+          dateLabel: doc.milestone_desc_2 || 'Знаковая дата №2',
+          date: new Date(doc.milestone_date_2),
+        });
+      }
+      if (doc.milestone_date_3) {
+        events.push({
+          document: doc,
+          dateType: 'milestone3',
+          dateLabel: doc.milestone_desc_3 || 'Знаковая дата №3',
+          date: new Date(doc.milestone_date_3),
+        });
+      }
+    });
+
+    return events;
+  };
+
+  const allDateEvents = getAllDateEvents();
+
+  const eventsOnDate = selectedDate
+    ? allDateEvents.filter(event => {
         return (
-          docDate.getDate() === selectedDate.getDate() &&
-          docDate.getMonth() === selectedDate.getMonth() &&
-          docDate.getFullYear() === selectedDate.getFullYear()
+          event.date.getDate() === selectedDate.getDate() &&
+          event.date.getMonth() === selectedDate.getMonth() &&
+          event.date.getFullYear() === selectedDate.getFullYear()
         );
       })
     : [];
 
-  const datesWithDocuments = documents
-    .filter(doc => doc.date_deadline)
-    .map(doc => new Date(doc.date_deadline!));
+  const datesWithEvents = allDateEvents.map(event => event.date);
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
+  const getDateTypeIcon = (dateType: string) => {
+    switch (dateType) {
+      case 'signed': return 'FileSignature';
+      case 'deadline': return 'CalendarClock';
+      case 'expiry': return 'CalendarX';
+      case 'milestone1':
+      case 'milestone2':
+      case 'milestone3': return 'Star';
+      default: return 'Calendar';
     }
   };
+
+  const getDateTypeColor = (dateType: string) => {
+    switch (dateType) {
+      case 'signed': return 'default';
+      case 'deadline': return 'destructive';
+      case 'expiry': return 'secondary';
+      case 'milestone1':
+      case 'milestone2':
+      case 'milestone3': return 'default';
+      default: return 'outline';
+    }
+  };
+
+  const totalEvents = allDateEvents.length;
+  const deadlineEvents = allDateEvents.filter(e => e.dateType === 'deadline').length;
+  const milestoneEvents = allDateEvents.filter(e => e.dateType.startsWith('milestone')).length;
+  const expiryEvents = allDateEvents.filter(e => e.dateType === 'expiry').length;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -44,7 +126,7 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="Calendar" size={24} />
-            Календарь дедлайнов
+            Календарь важных дат
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -55,10 +137,10 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
             locale={ru}
             className="rounded-md border w-full"
             modifiers={{
-              hasDocument: datesWithDocuments,
+              hasEvent: datesWithEvents,
             }}
             modifiersStyles={{
-              hasDocument: {
+              hasEvent: {
                 fontWeight: 'bold',
                 textDecoration: 'underline',
                 color: 'hsl(var(--primary))',
@@ -72,7 +154,7 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="FileText" size={24} />
-            Документы на выбранную дату
+            События на выбранную дату
           </CardTitle>
           {selectedDate && (
             <p className="text-sm text-muted-foreground">
@@ -85,29 +167,44 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
           )}
         </CardHeader>
         <CardContent>
-          {documentsOnDate.length === 0 ? (
+          {eventsOnDate.length === 0 ? (
             <div className="text-center py-8">
               <Icon name="CalendarX" size={48} className="mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">На эту дату нет документов с дедлайнами</p>
+              <p className="text-muted-foreground">На эту дату нет событий</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {documentsOnDate.map(doc => (
-                <Card key={doc.id} className="border-l-4" style={{ borderLeftColor: `hsl(var(--${getPriorityColor(doc.priority)}))` }}>
+              {eventsOnDate.map((event, index) => (
+                <Card key={`${event.document.id}-${event.dateType}-${index}`} className="border-l-4 border-l-primary">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-semibold">{doc.title}</h4>
-                      <Badge variant={getPriorityColor(doc.priority)}>
-                        {doc.priority === 'high' ? 'Высокий' : doc.priority === 'medium' ? 'Средний' : 'Низкий'}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">{doc.description}</p>
-                    <div className="flex flex-wrap gap-1">
-                      {doc.tags.map(tag => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
+                    <div className="flex items-start gap-3 mb-2">
+                      <Icon 
+                        name={getDateTypeIcon(event.dateType) as any} 
+                        size={20} 
+                        className="text-primary mt-0.5" 
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="font-semibold">{event.document.title}</h4>
+                          <Badge variant={getDateTypeColor(event.dateType) as any}>
+                            {event.dateLabel}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{event.document.description}</p>
+                        {event.document.project_name && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Icon name="FolderKanban" size={12} />
+                            <span>{event.document.project_name}</span>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {event.document.tags.map(tag => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -121,16 +218,16 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="TrendingUp" size={24} />
-            Статистика по месяцам
+            Статистика событий
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Всего документов', value: documents.length, icon: 'FileText', color: 'primary' },
-              { label: 'Высокий приоритет', value: documents.filter(d => d.priority === 'high').length, icon: 'AlertCircle', color: 'destructive' },
-              { label: 'Средний приоритет', value: documents.filter(d => d.priority === 'medium').length, icon: 'Info', color: 'default' },
-              { label: 'Низкий приоритет', value: documents.filter(d => d.priority === 'low').length, icon: 'CircleCheck', color: 'secondary' },
+              { label: 'Всего событий', value: totalEvents, icon: 'Calendar', color: 'primary' },
+              { label: 'Дедлайны', value: deadlineEvents, icon: 'CalendarClock', color: 'destructive' },
+              { label: 'Знаковые даты', value: milestoneEvents, icon: 'Star', color: 'default' },
+              { label: 'Даты истечения', value: expiryEvents, icon: 'CalendarX', color: 'secondary' },
             ].map((stat, i) => (
               <div key={i} className="p-4 rounded-lg border bg-card">
                 <div className="flex items-center gap-2 mb-2">
