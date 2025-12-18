@@ -15,6 +15,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { api, Project } from '@/lib/api';
+import { useState, useEffect } from 'react';
 
 interface DocumentFiltersProps {
   filters: {
@@ -44,6 +46,20 @@ const availableTags = [
 ];
 
 const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => {
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const projectList = await api.getProjects();
+        setProjects(projectList);
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+      }
+    };
+    loadProjects();
+  }, []);
+
   const handleTagToggle = (tag: string) => {
     const newTags = filters.tags.includes(tag)
       ? filters.tags.filter(t => t !== tag)
@@ -137,6 +153,26 @@ const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => 
               />
             </PopoverContent>
           </Popover>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="project">Проект</Label>
+          <Select
+            value={filters.projectId ? String(filters.projectId) : 'all'}
+            onValueChange={(value) => onFiltersChange({ ...filters, projectId: value === 'all' ? null : parseInt(value) })}
+          >
+            <SelectTrigger id="project">
+              <SelectValue placeholder="Все проекты" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Все проекты</SelectItem>
+              {projects.map(project => (
+                <SelectItem key={project.id} value={String(project.id)}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
