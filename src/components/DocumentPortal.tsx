@@ -7,6 +7,7 @@ import DocumentFilters from './DocumentFilters';
 import DocumentCalendar from './DocumentCalendar';
 import NotificationPanel from './NotificationPanel';
 import AddDocumentDialog from './AddDocumentDialog';
+import EditDocumentDialog from './EditDocumentDialog';
 import { api, Document } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,6 +19,8 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
   const [activeView, setActiveView] = useState<'documents' | 'calendar' | 'notifications' | 'archive'>('documents');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingDocument, setEditingDocument] = useState<Document | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const [filters, setFilters] = useState({
@@ -92,8 +95,13 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         date_payment: doc.date_payment,
         date_deadline: doc.date_deadline,
         date_expiry: doc.date_expiry,
+        pdf_url: doc.pdf_url,
       });
       setDocuments(documents.map(d => d.id === updated.id ? updated : d));
+      toast({
+        title: 'Документ обновлен',
+        description: `"${updated.title}" успешно обновлен`,
+      });
     } catch (error) {
       toast({
         title: 'Ошибка',
@@ -108,6 +116,11 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
     if (doc) {
       await updateDocument({ ...doc, status: 'archived' });
     }
+  };
+
+  const handleEditDocument = (doc: Document) => {
+    setEditingDocument(doc);
+    setEditDialogOpen(true);
   };
 
   const activeDocuments = documents.filter(doc => doc.status === 'active');
@@ -220,6 +233,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
                 documents={activeDocuments}
                 filters={filters}
                 onArchive={archiveDocument}
+                onEdit={handleEditDocument}
               />
             </div>
           </div>
@@ -244,6 +258,13 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
           </div>
         )}
       </div>
+
+      <EditDocumentDialog
+        document={editingDocument}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={updateDocument}
+      />
     </div>
   );
 };

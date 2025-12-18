@@ -15,10 +15,11 @@ interface DocumentListProps {
     projectId: number | null;
   };
   onArchive?: (id: number) => void;
+  onEdit?: (doc: Document) => void;
   isArchive?: boolean;
 }
 
-const DocumentList = ({ documents, filters, onArchive, isArchive }: DocumentListProps) => {
+const DocumentList = ({ documents, filters, onArchive, onEdit, isArchive }: DocumentListProps) => {
   const filteredDocuments = documents.filter(doc => {
     if (filters.searchQuery && !doc.title.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
         !doc.description.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
@@ -121,8 +122,13 @@ const DocumentList = ({ documents, filters, onArchive, isArchive }: DocumentList
                   <CardDescription>{doc.description}</CardDescription>
                 </div>
                 <div className="flex gap-1">
+                  {!isArchive && onEdit && (
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(doc)} title="Редактировать">
+                      <Icon name="Pencil" size={18} />
+                    </Button>
+                  )}
                   {!isArchive && onArchive && (
-                    <Button variant="ghost" size="icon" onClick={() => onArchive(doc.id)}>
+                    <Button variant="ghost" size="icon" onClick={() => onArchive(doc.id)} title="Архивировать">
                       <Icon name="Archive" size={18} />
                     </Button>
                   )}
