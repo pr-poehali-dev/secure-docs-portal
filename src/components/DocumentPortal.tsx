@@ -9,6 +9,7 @@ import NotificationPanel from './NotificationPanel';
 import AddDocumentDialog from './AddDocumentDialog';
 import EditDocumentDialog from './EditDocumentDialog';
 import DeleteDocumentDialog from './DeleteDocumentDialog';
+import AdminPanel from './AdminPanel';
 import { api, Document } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,7 +18,7 @@ interface DocumentPortalProps {
 }
 
 const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
-  const [activeView, setActiveView] = useState<'documents' | 'calendar' | 'notifications' | 'archive'>('documents');
+  const [activeView, setActiveView] = useState<'documents' | 'calendar' | 'notifications' | 'archive' | 'admin'>('documents');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
@@ -243,6 +244,14 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
             Архив
             <Badge variant="secondary" className="ml-2">{archivedDocuments.length}</Badge>
           </Button>
+          <Button
+            variant={activeView === 'admin' ? 'default' : 'ghost'}
+            onClick={() => setActiveView('admin')}
+            className="flex-1"
+          >
+            <Icon name="Settings" size={18} className="mr-2" />
+            Администрирование
+          </Button>
         </nav>
 
         {activeView === 'documents' && (
@@ -284,6 +293,10 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
               isArchive
             />
           </div>
+        )}
+
+        {activeView === 'admin' && (
+          <AdminPanel />
         )}
       </div>
 

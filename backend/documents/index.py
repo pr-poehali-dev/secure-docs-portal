@@ -138,6 +138,50 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'PUT':
             body = json.loads(event.get('body', '{}'))
+            action = body.get('action')
+            
+            if action == 'update_project':
+                project_id = body.get('id')
+                if not project_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': headers,
+                        'body': json.dumps({'error': 'Project ID required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute('''
+                    UPDATE projects
+                    SET name = %s,
+                        description = %s,
+                        status = %s,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = %s
+                    RETURNING *
+                ''', (
+                    body.get('name'),
+                    body.get('description', ''),
+                    body.get('status', 'active'),
+                    project_id
+                ))
+                project = cur.fetchone()
+                conn.commit()
+                
+                if not project:
+                    return {
+                        'statusCode': 404,
+                        'headers': headers,
+                        'body': json.dumps({'error': 'Project not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps(dict(project), default=str),
+                    'isBase64Encoded': False
+                }
+            
             doc_id = body.get('id')
             
             if not doc_id:
@@ -196,6 +240,37 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif method == 'DELETE':
             params = event.get('queryStringParameters', {})
+            action = params.get('action')
+            
+            if action == 'delete_project':
+                project_id = params.get('id')
+                if not project_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': headers,
+                        'body': json.dumps({'error': 'Project ID required'}),
+                        'isBase64Encoded': False
+                    }
+                
+                cur.execute('DELETE FROM projects WHERE id = %s RETURNING id', (project_id,))
+                deleted = cur.fetchone()
+                conn.commit()
+                
+                if not deleted:
+                    return {
+                        'statusCode': 404,
+                        'headers': headers,
+                        'body': json.dumps({'error': 'Project not found'}),
+                        'isBase64Encoded': False
+                    }
+                
+                return {
+                    'statusCode': 200,
+                    'headers': headers,
+                    'body': json.dumps({'success': True, 'id': deleted['id']}),
+                    'isBase64Encoded': False
+                }
+            
             doc_id = params.get('id')
             
             if not doc_id:

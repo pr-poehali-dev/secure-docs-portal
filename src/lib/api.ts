@@ -52,6 +52,10 @@ export interface CreateProjectData {
   status?: string;
 }
 
+export interface UpdateProjectData extends CreateProjectData {
+  id: number;
+}
+
 export const api = {
   async getDocuments(filters?: { status?: string; project_id?: number }): Promise<Document[]> {
     const params = new URLSearchParams();
@@ -131,5 +135,22 @@ export const api = {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete document');
+  },
+
+  async updateProject(data: UpdateProjectData): Promise<Project> {
+    const response = await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update_project', ...data }),
+    });
+    if (!response.ok) throw new Error('Failed to update project');
+    return response.json();
+  },
+
+  async deleteProject(id: number): Promise<void> {
+    const response = await fetch(`${API_URL}?action=delete_project&id=${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error('Failed to delete project');
   },
 };
