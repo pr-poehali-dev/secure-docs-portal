@@ -8,6 +8,7 @@ import { ru } from 'date-fns/locale';
 
 interface DocumentCalendarProps {
   documents: Document[];
+  onEditDocument: (doc: Document) => void;
 }
 
 interface DateEvent {
@@ -17,7 +18,7 @@ interface DateEvent {
   date: Date;
 }
 
-const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
+const DocumentCalendar = ({ documents, onEditDocument }: DocumentCalendarProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   const getAllDateEvents = (): DateEvent[] => {
@@ -175,7 +176,11 @@ const DocumentCalendar = ({ documents }: DocumentCalendarProps) => {
           ) : (
             <div className="space-y-3">
               {eventsOnDate.map((event, index) => (
-                <Card key={`${event.document.id}-${event.dateType}-${index}`} className="border-l-4 border-l-primary">
+                <Card 
+                  key={`${event.document.id}-${event.dateType}-${index}`} 
+                  className="border-l-4 border-l-primary cursor-pointer hover:bg-accent/50 transition-colors"
+                  onClick={() => onEditDocument(event.document)}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3 mb-2">
                       <Icon 

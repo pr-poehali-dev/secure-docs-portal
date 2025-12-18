@@ -286,7 +286,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         )}
 
         {activeView === 'calendar' && (
-          <DocumentCalendar documents={activeDocuments} />
+          <DocumentCalendar documents={activeDocuments} onEditDocument={handleEditDocument} />
         )}
 
         {activeView === 'notifications' && (
