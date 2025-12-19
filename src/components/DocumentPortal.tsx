@@ -290,7 +290,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         )}
 
         {activeView === 'notifications' && (
-          <NotificationPanel documents={upcomingDeadlines} />
+          <NotificationPanel documents={upcomingDeadlines} onEditDocument={handleEditDocument} />
         )}
 
         {activeView === 'archive' && (

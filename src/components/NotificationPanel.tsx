@@ -6,9 +6,10 @@ import { Document } from '@/lib/api';
 
 interface NotificationPanelProps {
   documents: Document[];
+  onEditDocument: (doc: Document) => void;
 }
 
-const NotificationPanel = ({ documents }: NotificationPanelProps) => {
+const NotificationPanel = ({ documents, onEditDocument }: NotificationPanelProps) => {
   const getUrgencyLevel = (daysUntil: number) => {
     if (daysUntil <= 3) return { level: 'Критично', color: 'destructive' as const, icon: 'AlertCircle' };
     if (daysUntil <= 7) return { level: 'Срочно', color: 'default' as const, icon: 'Clock' };
@@ -63,8 +64,9 @@ const NotificationPanel = ({ documents }: NotificationPanelProps) => {
             return (
               <Card 
                 key={doc.id} 
-                className="border-l-4 hover:shadow-lg transition-shadow"
+                className="border-l-4 hover:shadow-lg transition-shadow cursor-pointer"
                 style={{ borderLeftColor: `hsl(var(--${urgency.color}))` }}
+                onClick={() => onEditDocument(doc)}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
