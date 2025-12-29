@@ -85,10 +85,17 @@ const AdminPanel = () => {
       const projectList = await api.getProjects();
       setProjects(projectList);
       
-      setUsers([
-        { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15' },
-        { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20' },
-      ]);
+      const savedUsers = localStorage.getItem('admin_users');
+      if (savedUsers) {
+        setUsers(JSON.parse(savedUsers));
+      } else {
+        const defaultUsers = [
+          { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15' },
+          { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20' },
+        ];
+        setUsers(defaultUsers);
+        localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
+      }
     } catch (error) {
       toast({
         title: 'Ошибка загрузки',
@@ -223,7 +230,9 @@ const AdminPanel = () => {
       created_at: new Date().toISOString().split('T')[0],
     };
 
-    setUsers([newUser, ...users]);
+    const updatedUsers = [newUser, ...users];
+    setUsers(updatedUsers);
+    localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
     toast({
       title: 'Пользователь добавлен',
       description: `Пользователь "${newUser.name}" успешно создан`,
@@ -263,7 +272,9 @@ const AdminPanel = () => {
       role: userRole,
     };
 
-    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+    const updatedUsers = users.map(u => u.id === updatedUser.id ? updatedUser : u);
+    setUsers(updatedUsers);
+    localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
     toast({
       title: 'Пользователь обновлен',
       description: `Данные пользователя "${updatedUser.name}" изменены`,
@@ -319,7 +330,9 @@ const AdminPanel = () => {
   const handleDeleteUser = () => {
     if (!selectedUser) return;
 
-    setUsers(users.filter(u => u.id !== selectedUser.id));
+    const updatedUsers = users.filter(u => u.id !== selectedUser.id);
+    setUsers(updatedUsers);
+    localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
     toast({
       title: 'Пользователь удален',
       description: `Пользователь "${selectedUser.name}" удален из системы`,
@@ -351,7 +364,9 @@ const AdminPanel = () => {
 
   const toggleUserStatus = (user: User) => {
     const newStatus = user.status === 'active' ? 'inactive' : 'active';
-    setUsers(users.map(u => u.id === user.id ? { ...u, status: newStatus } : u));
+    const updatedUsers = users.map(u => u.id === user.id ? { ...u, status: newStatus } : u);
+    setUsers(updatedUsers);
+    localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
     toast({
       title: 'Статус изменен',
       description: `Пользователь "${user.name}" ${newStatus === 'active' ? 'активирован' : 'деактивирован'}`,
