@@ -38,6 +38,7 @@ import { api, Project } from '@/lib/api';
 interface User {
   id: number;
   name: string;
+  login: string;
   email: string;
   role: 'admin' | 'user';
   status: 'active' | 'inactive';
@@ -65,6 +66,7 @@ const AdminPanel = () => {
   const [projectStatus, setProjectStatus] = useState<string>('active');
   
   const [userName, setUserName] = useState('');
+  const [userLogin, setUserLogin] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userRole, setUserRole] = useState<'admin' | 'user'>('user');
   const [userPassword, setUserPassword] = useState('');
@@ -84,8 +86,8 @@ const AdminPanel = () => {
       setProjects(projectList);
       
       setUsers([
-        { id: 1, name: 'Администратор', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15' },
-        { id: 2, name: 'Менеджер проектов', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20' },
+        { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15' },
+        { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20' },
       ]);
     } catch (error) {
       toast({
@@ -193,7 +195,7 @@ const AdminPanel = () => {
   };
 
   const handleAddUser = () => {
-    if (!userName.trim() || !userEmail.trim() || !userPassword.trim()) {
+    if (!userName.trim() || !userLogin.trim() || !userEmail.trim() || !userPassword.trim()) {
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -202,9 +204,19 @@ const AdminPanel = () => {
       return;
     }
 
+    if (users.some(u => u.login === userLogin)) {
+      toast({
+        title: 'Ошибка',
+        description: 'Пользователь с таким логином уже существует',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const newUser: User = {
       id: Date.now(),
       name: userName,
+      login: userLogin,
       email: userEmail,
       role: userRole,
       status: 'active',
@@ -218,13 +230,14 @@ const AdminPanel = () => {
     });
     setAddUserOpen(false);
     setUserName('');
+    setUserLogin('');
     setUserEmail('');
     setUserRole('user');
     setUserPassword('');
   };
 
   const handleEditUser = () => {
-    if (!selectedUser || !userName.trim() || !userEmail.trim()) {
+    if (!selectedUser || !userName.trim() || !userLogin.trim() || !userEmail.trim()) {
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -233,9 +246,19 @@ const AdminPanel = () => {
       return;
     }
 
+    if (users.some(u => u.login === userLogin && u.id !== selectedUser.id)) {
+      toast({
+        title: 'Ошибка',
+        description: 'Пользователь с таким логином уже существует',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const updatedUser: User = {
       ...selectedUser,
       name: userName,
+      login: userLogin,
       email: userEmail,
       role: userRole,
     };
@@ -248,6 +271,7 @@ const AdminPanel = () => {
     setEditUserOpen(false);
     setSelectedUser(null);
     setUserName('');
+    setUserLogin('');
     setUserEmail('');
     setUserRole('user');
   };
@@ -307,6 +331,7 @@ const AdminPanel = () => {
   const openEditUser = (user: User) => {
     setSelectedUser(user);
     setUserName(user.name);
+    setUserLogin(user.login);
     setUserEmail(user.email);
     setUserRole(user.role);
     setEditUserOpen(true);
@@ -471,6 +496,15 @@ const AdminPanel = () => {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="user-login">Логин *</Label>
+                    <Input
+                      id="user-login"
+                      placeholder="login"
+                      value={userLogin}
+                      onChange={(e) => setUserLogin(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="user-email">Email *</Label>
                     <Input
                       id="user-email"
@@ -528,7 +562,10 @@ const AdminPanel = () => {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded mr-2">{user.login}</span>
+                    {user.email}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Создан: {new Date(user.created_at).toLocaleDateString('ru-RU')}
                   </p>
@@ -618,6 +655,15 @@ const AdminPanel = () => {
                 placeholder="Имя пользователя"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-user-login">Логин *</Label>
+              <Input
+                id="edit-user-login"
+                placeholder="login"
+                value={userLogin}
+                onChange={(e) => setUserLogin(e.target.value)}
               />
             </div>
             <div className="space-y-2">
