@@ -267,7 +267,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
         {activeView === 'documents' && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
-              <DocumentFilters filters={filters} onFiltersChange={setFilters} />
+              <DocumentFilters filters={filters} onFiltersChange={setFilters} documents={activeDocuments} />
             </div>
             <div className="lg:col-span-3">
               <div className="flex justify-between items-center mb-4">

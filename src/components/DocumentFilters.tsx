@@ -15,8 +15,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
-import { api, Project } from '@/lib/api';
-import { useState, useEffect } from 'react';
+import { api, Project, Document } from '@/lib/api';
+import { useState, useEffect, useMemo } from 'react';
 
 interface DocumentFiltersProps {
   filters: {
@@ -27,26 +27,19 @@ interface DocumentFiltersProps {
     projectId: number | null;
   };
   onFiltersChange: (filters: any) => void;
+  documents: Document[];
 }
 
-const availableTags = [
-  'договор',
-  'поставка',
-  'оборудование',
-  'отчетность',
-  'финансы',
-  'налоги',
-  'протокол',
-  'акционеры',
-  'юридический',
-  'лицензия',
-  'ПО',
-  'аренда',
-  'офис',
-];
-
-const DocumentFilters = ({ filters, onFiltersChange }: DocumentFiltersProps) => {
+const DocumentFilters = ({ filters, onFiltersChange, documents }: DocumentFiltersProps) => {
   const [projects, setProjects] = useState<Project[]>([]);
+  
+  const availableTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+    documents.forEach(doc => {
+      doc.tags.forEach(tag => tagsSet.add(tag));
+    });
+    return Array.from(tagsSet).sort();
+  }, [documents]);
 
   useEffect(() => {
     const loadProjects = async () => {
