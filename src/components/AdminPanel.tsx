@@ -290,9 +290,18 @@ const AdminPanel = () => {
   };
 
   const handleChangePassword = () => {
-    if (!selectedUser) return;
+    console.log('handleChangePassword вызвана');
+    console.log('selectedUser:', selectedUser);
+    console.log('newPassword:', newPassword);
+    console.log('confirmPassword:', confirmPassword);
+
+    if (!selectedUser) {
+      console.log('Нет выбранного пользователя');
+      return;
+    }
 
     if (!newPassword.trim() || !confirmPassword.trim()) {
+      console.log('Пустые поля');
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -302,6 +311,7 @@ const AdminPanel = () => {
     }
 
     if (newPassword !== confirmPassword) {
+      console.log('Пароли не совпадают');
       toast({
         title: 'Ошибка',
         description: 'Пароли не совпадают',
@@ -311,6 +321,7 @@ const AdminPanel = () => {
     }
 
     if (newPassword.length < 6) {
+      console.log('Пароль слишком короткий');
       toast({
         title: 'Ошибка',
         description: 'Пароль должен содержать минимум 6 символов',
@@ -319,15 +330,17 @@ const AdminPanel = () => {
       return;
     }
 
+    console.log('Валидация пройдена, обновляем пароль');
     const updatedUsers = users.map(u => 
       u.id === selectedUser.id ? { ...u, password: newPassword } : u
     );
     
-    console.log('Обновление пароля пользователя:', selectedUser.name, 'ID:', selectedUser.id);
     console.log('Обновленные пользователи:', updatedUsers);
     
     setUsers(updatedUsers);
     localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
+    
+    console.log('Пароль сохранен в localStorage');
     
     toast({
       title: 'Пароль изменен',
