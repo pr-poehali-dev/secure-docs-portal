@@ -82,8 +82,12 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-2">
-            <Icon name="FileText" size={32} className="text-primary-foreground" />
+          <div className="mx-auto w-24 h-24 mb-2 rounded-xl overflow-hidden bg-white shadow-lg">
+            <img 
+              src="https://cdn.poehali.dev/projects/e1f5c92e-1e7e-4fba-a8ef-304e3ce173f4/files/02ad9855-bedc-463f-9a11-f0a7a0a6ea3c.jpg" 
+              alt="Логотип" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <CardTitle className="text-3xl font-bold">Портал документов</CardTitle>
           <CardDescription className="text-base">

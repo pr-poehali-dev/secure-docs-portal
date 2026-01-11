@@ -192,8 +192,12 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
       <header className="border-b bg-card sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Icon name="FileText" size={24} className="text-primary-foreground" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden bg-white shadow-sm">
+              <img 
+                src="https://cdn.poehali.dev/projects/e1f5c92e-1e7e-4fba-a8ef-304e3ce173f4/files/02ad9855-bedc-463f-9a11-f0a7a0a6ea3c.jpg" 
+                alt="Логотип" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold">Портал документов</h1>
