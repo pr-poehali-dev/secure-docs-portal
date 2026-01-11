@@ -43,6 +43,7 @@ interface User {
   role: 'admin' | 'user';
   status: 'active' | 'inactive';
   created_at: string;
+  password?: string;
 }
 
 const AdminPanel = () => {
@@ -228,6 +229,7 @@ const AdminPanel = () => {
       role: userRole,
       status: 'active',
       created_at: new Date().toISOString().split('T')[0],
+      password: userPassword,
     };
 
     const updatedUsers = [newUser, ...users];
@@ -317,6 +319,12 @@ const AdminPanel = () => {
       return;
     }
 
+    const updatedUsers = users.map(u => 
+      u.id === selectedUser.id ? { ...u, password: newPassword } : u
+    );
+    setUsers(updatedUsers);
+    localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
+    
     toast({
       title: 'Пароль изменен',
       description: `Пароль пользователя "${selectedUser.name}" успешно изменен`,
