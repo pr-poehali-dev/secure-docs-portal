@@ -4,12 +4,16 @@ import DocumentPortal from '@/components/DocumentPortal';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'user'>('user');
 
   if (!isAuthenticated) {
-    return <LoginPage onLogin={() => setIsAuthenticated(true)} />;
+    return <LoginPage onLogin={(role) => {
+      setUserRole(role);
+      setIsAuthenticated(true);
+    }} />;
   }
 
-  return <DocumentPortal onLogout={() => setIsAuthenticated(false)} />;
+  return <DocumentPortal onLogout={() => setIsAuthenticated(false)} userRole={userRole} />;
 };
 
 export default Index;

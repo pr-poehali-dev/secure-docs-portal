@@ -15,9 +15,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DocumentPortalProps {
   onLogout: () => void;
+  userRole: 'admin' | 'user';
 }
 
-const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
+const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
   const [activeView, setActiveView] = useState<'documents' | 'calendar' | 'notifications' | 'archive' | 'admin'>('documents');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -281,7 +282,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
                 filters={filters}
                 onArchive={archiveDocument}
                 onEdit={handleEditDocument}
-                onDelete={handleDeleteDocument}
+                onDelete={userRole === 'admin' ? handleDeleteDocument : undefined}
               />
             </div>
           </div>
@@ -301,7 +302,7 @@ const DocumentPortal = ({ onLogout }: DocumentPortalProps) => {
             <DocumentList
               documents={archivedDocuments}
               filters={filters}
-              onDelete={handleDeleteDocument}
+              onDelete={userRole === 'admin' ? handleDeleteDocument : undefined}
               isArchive
             />
           </div>

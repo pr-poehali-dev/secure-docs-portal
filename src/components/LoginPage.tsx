@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginPageProps {
-  onLogin: () => void;
+  onLogin: (userRole: 'admin' | 'user') => void;
 }
 
 const LoginPage = ({ onLogin }: LoginPageProps) => {
@@ -67,7 +67,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
         title: 'Успешный вход',
         description: 'Добро пожаловать в систему управления документами',
       });
-      onLogin();
+      onLogin(user.role);
     } else {
       toast({
         title: 'Ошибка входа',
