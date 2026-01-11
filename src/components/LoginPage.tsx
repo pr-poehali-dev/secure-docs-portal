@@ -85,9 +85,6 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               <Icon name="LogIn" size={18} className="mr-2" />
               Войти в систему
             </Button>
-            <p className="text-xs text-center text-muted-foreground mt-4">
-              Демо: логин <strong>admin</strong>, пароль <strong>admin</strong>
-            </p>
           </form>
         </CardContent>
       </Card>
