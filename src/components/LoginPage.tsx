@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,10 +13,33 @@ interface LoginPageProps {
 const LoginPage = ({ onLogin }: LoginPageProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
+  const [captcha, setCaptcha] = useState({ num1: 0, num2: 0, answer: 0 });
   const { toast } = useToast();
+
+  const generateCaptcha = () => {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    setCaptcha({ num1, num2, answer: num1 + num2 });
+    setCaptchaAnswer('');
+  };
+
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (parseInt(captchaAnswer) !== captcha.answer) {
+      toast({
+        title: 'Ошибка',
+        description: 'Неверный ответ на математический вопрос',
+        variant: 'destructive',
+      });
+      generateCaptcha();
+      return;
+    }
     
     const savedUsers = localStorage.getItem('admin_users');
     let users = [];
@@ -39,6 +62,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
         description: 'Неверный логин или пароль',
         variant: 'destructive',
       });
+      generateCaptcha();
     }
   };
 
@@ -88,6 +112,34 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
                   className="pl-10"
                   required
                 />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="captcha" className="text-sm font-medium">
+                Проверка на человека
+              </Label>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-muted px-4 py-3 rounded-lg font-mono text-lg font-semibold flex-1 justify-center">
+                  {captcha.num1} + {captcha.num2} = ?
+                </div>
+                <Input
+                  id="captcha"
+                  type="number"
+                  placeholder="?"
+                  value={captchaAnswer}
+                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                  className="w-20 text-center"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={generateCaptcha}
+                  title="Обновить"
+                >
+                  <Icon name="RefreshCw" size={18} />
+                </Button>
               </div>
             </div>
             <Button type="submit" className="w-full font-medium" size="lg">
