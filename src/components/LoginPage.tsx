@@ -26,6 +26,18 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
   useEffect(() => {
     generateCaptcha();
+    
+    const savedUsers = localStorage.getItem('admin_users');
+    const dataVersion = localStorage.getItem('admin_users_version');
+    
+    if (!savedUsers || dataVersion !== '2') {
+      const defaultUsers = [
+        { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15', password: 'admin123' },
+        { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20', password: 'manager123' },
+      ];
+      localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
+      localStorage.setItem('admin_users_version', '2');
+    }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
