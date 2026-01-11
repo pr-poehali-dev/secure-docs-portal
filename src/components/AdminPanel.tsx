@@ -86,23 +86,14 @@ const AdminPanel = () => {
       const projectList = await api.getProjects();
       setProjects(projectList);
       
-      const savedUsers = localStorage.getItem('admin_users');
-      if (savedUsers) {
-        const parsedUsers = JSON.parse(savedUsers);
-        const usersWithPasswords = parsedUsers.map((u: User) => ({
-          ...u,
-          password: u.password || (u.id === 1 ? 'admin123' : u.id === 2 ? 'manager123' : 'password123')
-        }));
-        setUsers(usersWithPasswords);
-        localStorage.setItem('admin_users', JSON.stringify(usersWithPasswords));
-      } else {
-        const defaultUsers = [
-          { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15', password: 'admin123' },
-          { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20', password: 'manager123' },
-        ];
-        setUsers(defaultUsers);
-        localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
-      }
+      localStorage.removeItem('admin_users');
+      
+      const defaultUsers = [
+        { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15', password: 'admin123' },
+        { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20', password: 'manager123' },
+      ];
+      setUsers(defaultUsers);
+      localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
     } catch (error) {
       toast({
         title: 'Ошибка загрузки',
