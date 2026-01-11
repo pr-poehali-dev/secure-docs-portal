@@ -322,6 +322,10 @@ const AdminPanel = () => {
     const updatedUsers = users.map(u => 
       u.id === selectedUser.id ? { ...u, password: newPassword } : u
     );
+    
+    console.log('Обновление пароля пользователя:', selectedUser.name, 'ID:', selectedUser.id);
+    console.log('Обновленные пользователи:', updatedUsers);
+    
     setUsers(updatedUsers);
     localStorage.setItem('admin_users', JSON.stringify(updatedUsers));
     
