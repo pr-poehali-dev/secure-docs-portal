@@ -7,7 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
 interface LoginPageProps {
-  onLogin: (userRole: 'admin' | 'user') => void;
+  onLogin: (userRole: 'admin' | 'user' | 'viewer') => void;
 }
 
 const LoginPage = ({ onLogin }: LoginPageProps) => {
@@ -30,13 +30,14 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
     const savedUsers = localStorage.getItem('admin_users');
     const dataVersion = localStorage.getItem('admin_users_version');
     
-    if (!savedUsers || dataVersion !== '2') {
+    if (!savedUsers || dataVersion !== '3') {
       const defaultUsers = [
         { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15', password: 'admin123' },
         { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20', password: 'manager123' },
+        { id: 3, name: 'Гость', login: 'guest', email: 'guest@company.com', role: 'viewer', status: 'active', created_at: '2024-03-10', password: 'guest123' },
       ];
       localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
-      localStorage.setItem('admin_users_version', '2');
+      localStorage.setItem('admin_users_version', '3');
     }
   }, []);
 

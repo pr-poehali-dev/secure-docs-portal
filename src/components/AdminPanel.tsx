@@ -40,7 +40,7 @@ interface User {
   name: string;
   login: string;
   email: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'viewer';
   status: 'active' | 'inactive';
   created_at: string;
   password?: string;
@@ -69,7 +69,7 @@ const AdminPanel = () => {
   const [userName, setUserName] = useState('');
   const [userLogin, setUserLogin] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userRole, setUserRole] = useState<'admin' | 'user'>('user');
+  const [userRole, setUserRole] = useState<'admin' | 'user' | 'viewer'>('user');
   const [userPassword, setUserPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -94,8 +94,9 @@ const AdminPanel = () => {
       } else {
         localStorage.removeItem('admin_users');
         const defaultUsers = [
-          { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin', status: 'active', created_at: '2024-01-15', password: 'admin123' },
-          { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user', status: 'active', created_at: '2024-02-20', password: 'manager123' },
+          { id: 1, name: 'Администратор', login: 'admin', email: 'admin@company.com', role: 'admin' as const, status: 'active', created_at: '2024-01-15', password: 'admin123' },
+          { id: 2, name: 'Менеджер проектов', login: 'manager', email: 'manager@company.com', role: 'user' as const, status: 'active', created_at: '2024-02-20', password: 'manager123' },
+          { id: 3, name: 'Гость', login: 'guest', email: 'guest@company.com', role: 'viewer' as const, status: 'active', created_at: '2024-03-10', password: 'guest123' },
         ];
         setUsers(defaultUsers);
         localStorage.setItem('admin_users', JSON.stringify(defaultUsers));
@@ -559,6 +560,7 @@ const AdminPanel = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="viewer">Только просмотр</SelectItem>
                         <SelectItem value="user">Пользователь</SelectItem>
                         <SelectItem value="admin">Администратор</SelectItem>
                       </SelectContent>
@@ -587,6 +589,12 @@ const AdminPanel = () => {
                       <Badge variant="outline">
                         <Icon name="Shield" size={14} className="mr-1" />
                         Админ
+                      </Badge>
+                    )}
+                    {user.role === 'viewer' && (
+                      <Badge variant="secondary">
+                        <Icon name="Eye" size={14} className="mr-1" />
+                        Просмотр
                       </Badge>
                     )}
                   </div>
@@ -711,6 +719,7 @@ const AdminPanel = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="viewer">Только просмотр</SelectItem>
                   <SelectItem value="user">Пользователь</SelectItem>
                   <SelectItem value="admin">Администратор</SelectItem>
                 </SelectContent>

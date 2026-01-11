@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DocumentPortalProps {
   onLogout: () => void;
-  userRole: 'admin' | 'user';
+  userRole: 'admin' | 'user' | 'viewer';
 }
 
 const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
@@ -210,6 +210,10 @@ const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
                 {upcomingDeadlines.length} уведомлений
               </Badge>
             )}
+            <Badge variant={userRole === 'admin' ? 'default' : userRole === 'viewer' ? 'secondary' : 'outline'} className="px-3 py-1">
+              <Icon name={userRole === 'admin' ? 'Shield' : userRole === 'viewer' ? 'Eye' : 'User'} size={14} className="mr-1" />
+              {userRole === 'admin' ? 'Администратор' : userRole === 'viewer' ? 'Просмотр' : 'Пользователь'}
+            </Badge>
             <Button variant="outline" size="sm" onClick={onLogout}>
               <Icon name="LogOut" size={16} className="mr-2" />
               Выход
@@ -257,14 +261,16 @@ const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
             Архив
             <Badge variant="secondary" className="ml-2">{archivedDocuments.length}</Badge>
           </Button>
-          <Button
-            variant={activeView === 'admin' ? 'default' : 'ghost'}
-            onClick={() => setActiveView('admin')}
-            className="flex-1"
-          >
-            <Icon name="Settings" size={18} className="mr-2" />
-            Администрирование
-          </Button>
+          {userRole === 'admin' && (
+            <Button
+              variant={activeView === 'admin' ? 'default' : 'ghost'}
+              onClick={() => setActiveView('admin')}
+              className="flex-1"
+            >
+              <Icon name="Settings" size={18} className="mr-2" />
+              Администрирование
+            </Button>
+          )}
         </nav>
 
         {activeView === 'documents' && (
@@ -275,13 +281,13 @@ const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
             <div className="lg:col-span-3">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Активные документы</h2>
-                <AddDocumentDialog onAdd={addDocument} />
+                {userRole !== 'viewer' && <AddDocumentDialog onAdd={addDocument} />}
               </div>
               <DocumentList
                 documents={activeDocuments}
                 filters={filters}
-                onArchive={archiveDocument}
-                onEdit={handleEditDocument}
+                onArchive={userRole !== 'viewer' ? archiveDocument : undefined}
+                onEdit={userRole !== 'viewer' ? handleEditDocument : undefined}
                 onDelete={userRole === 'admin' ? handleDeleteDocument : undefined}
               />
             </div>
