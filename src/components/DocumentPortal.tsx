@@ -60,6 +60,7 @@ const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
     try {
       const newDoc = await api.createDocument({
         title: doc.title,
+        document_number: doc.document_number,
         description: doc.description,
         project_id: doc.project_id,
         status: 'active',
@@ -94,6 +95,7 @@ const DocumentPortal = ({ onLogout, userRole }: DocumentPortalProps) => {
       const updated = await api.updateDocument({
         id: doc.id,
         title: doc.title,
+        document_number: doc.document_number,
         description: doc.description,
         project_id: doc.project_id,
         status: doc.status,

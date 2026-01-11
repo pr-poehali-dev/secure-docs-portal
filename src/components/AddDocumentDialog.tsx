@@ -34,6 +34,7 @@ interface AddDocumentDialogProps {
 const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
+  const [documentNumber, setDocumentNumber] = useState('');
   const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState<string>('');
   const [dateSigned, setDateSigned] = useState<Date>();
@@ -102,6 +103,7 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
 
     const newDocument = {
       title,
+      document_number: documentNumber || undefined,
       description,
       project_id: projectId ? parseInt(projectId) : undefined,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
@@ -120,6 +122,7 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
     onAdd(newDocument);
 
     setTitle('');
+    setDocumentNumber('');
     setDescription('');
     setProjectId('');
     setDateSigned(undefined);
@@ -153,15 +156,27 @@ const AddDocumentDialog = ({ onAdd }: AddDocumentDialogProps) => {
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Название документа *</Label>
-              <Input
-                id="title"
-                placeholder="Например: Договор поставки оборудования"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Название документа *</Label>
+                <Input
+                  id="title"
+                  placeholder="Например: Договор поставки оборудования"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="document-number">Номер документа</Label>
+                <Input
+                  id="document-number"
+                  placeholder="Например: ДОГ-2024-001"
+                  value={documentNumber}
+                  onChange={(e) => setDocumentNumber(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">

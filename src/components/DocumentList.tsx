@@ -85,6 +85,12 @@ const DocumentList = ({ documents, filters, onArchive, onEdit, onDelete, isArchi
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <CardTitle className="text-lg">{doc.title}</CardTitle>
+                    {doc.document_number && (
+                      <Badge variant="outline" className="font-mono text-xs">
+                        <Icon name="Hash" size={12} className="mr-1" />
+                        {doc.document_number}
+                      </Badge>
+                    )}
                     {!isArchive && daysUntil && (
                       <Badge variant={daysUntil.variant}>
                         <Icon name="Clock" size={12} className="mr-1" />

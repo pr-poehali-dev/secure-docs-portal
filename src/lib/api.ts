@@ -14,6 +14,7 @@ export interface Project {
 export interface Document {
   id: number;
   title: string;
+  document_number: string | null;
   description: string;
   project_id: number | null;
   project_name?: string;
@@ -36,6 +37,7 @@ export interface Document {
 
 export interface CreateDocumentData {
   title: string;
+  document_number?: string;
   description: string;
   project_id?: number;
   status?: 'pending' | 'active' | 'archived';

@@ -35,6 +35,7 @@ interface EditDocumentDialogProps {
 
 const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocumentDialogProps) => {
   const [title, setTitle] = useState('');
+  const [documentNumber, setDocumentNumber] = useState('');
   const [description, setDescription] = useState('');
   const [projectId, setProjectId] = useState<string>('');
   const [status, setStatus] = useState<'pending' | 'active' | 'archived'>('active');
@@ -71,6 +72,7 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
   useEffect(() => {
     if (document && open) {
       setTitle(document.title);
+      setDocumentNumber(document.document_number || '');
       setDescription(document.description);
       setProjectId(document.project_id ? String(document.project_id) : '');
       setStatus(document.status);
@@ -127,6 +129,7 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
     onUpdate({
       ...document,
       title,
+      document_number: documentNumber || null,
       description,
       project_id: projectId ? parseInt(projectId) : null,
       status,
@@ -157,15 +160,27 @@ const EditDocumentDialog = ({ document, open, onOpenChange, onUpdate }: EditDocu
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-title">Название документа *</Label>
-              <Input
-                id="edit-title"
-                placeholder="Например: Договор поставки оборудования"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-title">Название документа *</Label>
+                <Input
+                  id="edit-title"
+                  placeholder="Например: Договор поставки оборудования"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-document-number">Номер документа</Label>
+                <Input
+                  id="edit-document-number"
+                  placeholder="Например: ДОГ-2024-001"
+                  value={documentNumber}
+                  onChange={(e) => setDocumentNumber(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
