@@ -18,7 +18,16 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (username === 'admin' && password === 'admin') {
+    const savedUsers = localStorage.getItem('admin_users');
+    let users = [];
+    
+    if (savedUsers) {
+      users = JSON.parse(savedUsers);
+    }
+    
+    const user = users.find((u: any) => u.login === username && u.password === password);
+    
+    if (user) {
       toast({
         title: 'Успешный вход',
         description: 'Добро пожаловать в систему управления документами',
